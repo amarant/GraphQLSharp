@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQLSharp", "GraphQLSharp\GraphQLSharp.csproj", "{9C8FA342-5A73-492E-95B1-F69C8683ED37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQLSharp.Test", "GraphQLSharp.Test\GraphQLSharp.Test.csproj", "{F2166935-2E3A-40A4-9290-0C338E75DAFD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C8FA342-5A73-492E-95B1-F69C8683ED37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C8FA342-5A73-492E-95B1-F69C8683ED37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C8FA342-5A73-492E-95B1-F69C8683ED37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C8FA342-5A73-492E-95B1-F69C8683ED37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2166935-2E3A-40A4-9290-0C338E75DAFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2166935-2E3A-40A4-9290-0C338E75DAFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2166935-2E3A-40A4-9290-0C338E75DAFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2166935-2E3A-40A4-9290-0C338E75DAFD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
