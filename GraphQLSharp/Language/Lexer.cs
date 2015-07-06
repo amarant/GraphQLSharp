@@ -333,7 +333,7 @@ namespace GraphQLSharp.Language
                 isFloat ? TokenKind.FLOAT : TokenKind.INT,
                 start,
                 position,
-                body.Substring(start, position)
+                body.Substring(start, position - start)
             );           
         }
 
@@ -359,7 +359,7 @@ namespace GraphQLSharp.Language
             ) {
                 ++position;
                 if (code == 92) { // \
-                    value += body.Substring(chunkStart, position - chunkStart);
+                    value += body.Substring(chunkStart, position -1 - chunkStart);
                     code = body[position];
                     switch ((int)code) {
                         case 34: value += '"'; break;
@@ -464,7 +464,7 @@ namespace GraphQLSharp.Language
             TokenKind.NAME,
             position,
             end,
-            body.Substring(position, end -position)
+            body.Substring(position, end - position)
           );
         }
     }

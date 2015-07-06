@@ -7,30 +7,33 @@ namespace GraphQLSharp.Test.Language
 {
     public class LexerTests
     {
-        private static Token LexOne(String body)
+        private static void LexOne(String body,
+            TokenKind kind, int start, int end, string value)
         {
-            return (new Lexer(new Source(body))).NextToken(null);
+            (new Lexer(new Source(body)))
+                .NextToken(null)
+                .ShouldBeEquivalentTo(new Token(kind, start, end, value));
+        }
+
+        private static void LexErr(String body, String message)
+        {
+            Action action = () => (new Lexer(new Source(body)))
+                .NextToken(null);
+            action.ShouldThrow<SyntaxError>(message);
         }
 
         [Fact]
         public void LexerSkipsWhitespace()
         {
-            var firstToken = LexOne("\n\n    foo\n\n\n");
-            firstToken.ShouldBeEquivalentTo(new Token(TokenKind.NAME, 6, 9, "foo"));
-
-            firstToken = LexOne("\n    #comment\n    foo#comment\n");
-            firstToken.ShouldBeEquivalentTo(new Token(TokenKind.NAME, 18, 21, "foo"));
-
-            firstToken = LexOne(",,,foo,,,");
-            firstToken.ShouldBeEquivalentTo(new Token(TokenKind.NAME, 3, 6, "foo"));
+            LexOne("\n\n    foo\n\n\n", TokenKind.NAME, 6, 9, "foo");
+            LexOne("\n    #comment\n    foo#comment\n", TokenKind.NAME, 18, 21, "foo");
+            LexOne(",,,foo,,,", TokenKind.NAME, 3, 6, "foo");
         }
 
         [Fact]
         public void LexerErrorsRespectWhitespace()
         {
-            Action act = () => LexOne("\n\n    ?\n\n\n");
-            act.ShouldThrow<SyntaxError>()
-                .WithMessage(
+            LexErr("\n\n    ?\n\n\n",
                 "Syntax Error GraphQL (3:5) Unexpected character \"?\"\n" +
                 "\n" +
                 "2: \n" +
@@ -42,18 +45,36 @@ namespace GraphQLSharp.Test.Language
         [Fact]
         public void LexerLexesStrings()
         {
-            LexOne("\"simple\"").ShouldBeEquivalentTo(
-                new Token(TokenKind.STRING, 0, 8, "simple"));
+            LexOne("\"simple\"", TokenKind.STRING, 0, 8, "simple");
+            LexOne("\" white space \"", TokenKind.STRING, 0, 15, " white space ");
+            LexOne("\"quote \\\"\"", TokenKind.STRING, 0, 10, "quote \"");
+            LexOne("\"escaped \\n\\r\\b\\t\\f\"", TokenKind.STRING, 0, 20, "escaped \n\r\b\t\f");
+            LexOne("\"slashes \\\\ \\/\"", TokenKind.STRING, 0, 15, "slashes \\ /");
+            LexOne("\"unicode \\u1234\\u5678\\u90AB\\uCDEF\"", TokenKind.STRING, 0, 34, "unicode \u1234\u5678\u90AB\uCDEF");
+        }
 
-            LexOne("\" white space \"").ShouldBeEquivalentTo(
-                new Token(TokenKind.STRING, 0, 15, " white space "));
+        [Fact]
+        public void LexerLexReportsUsefulStringErrors()
+        {
+            LexErr("\"no end quote", "Syntax Error GraphQL (1:14) Unterminated string");
+            LexErr("\"multi\nline\"", "Syntax Error GraphQL (1:7) Unterminated string");
+            LexErr("\"multi\rline\"", "Syntax Error GraphQL (1:7) Unterminated string");
+            LexErr("\"multi\u2028line\"", "Syntax Error GraphQL (1:7) Unterminated string");
+            LexErr("\"multi\u2029line\"", "Syntax Error GraphQL (1:7) Unterminated string");
+            LexErr("\"bad \\z esc\"", "Syntax Error GraphQL (1:7) Bad character escape sequence");
+            LexErr("\"bad \\x esc\"", "Syntax Error GraphQL (1:7) Bad character escape sequence");
+            LexErr("\"bad \\u1 esc\"", "Syntax Error GraphQL (1:7) Bad character escape sequence");
+            LexErr("\"bad \\u0XX1 esc\"", "Syntax Error GraphQL (1:7) Bad character escape sequence");
+            LexErr("\"bad \\uXXXX esc\"", "Syntax Error GraphQL (1:7) Bad character escape sequence");
+            LexErr("\"bad \\uFXXX esc\"", "Syntax Error GraphQL (1:7) Bad character escape sequence");
+            LexErr("\"bad \\uXXXF esc\"", "Syntax Error GraphQL (1:7) Bad character escape sequence");
+        }
 
-            LexOne("\"quote \\\"\"").ShouldBeEquivalentTo(
-                new Token(TokenKind.STRING, 0, 10, "quote \\\""));
+        [Fact]
+        public void LexerLexesNumbers()
+        {
+            LexOne("4", TokenKind.INT, 0, 1, "4");
 
-            var lexOne = LexOne("\"escaped \\n\\r\\b\\t\\f\"");
-            lexOne.ShouldBeEquivalentTo(
-                new Token(TokenKind.STRING, 0, 20, "escaped \n\r\b\t\f"));
         }
     }
 }
