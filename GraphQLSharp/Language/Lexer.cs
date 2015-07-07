@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GraphQLSharp.Language
 {
@@ -43,8 +38,8 @@ namespace GraphQLSharp.Language
         public override string ToString()
         {
             return String.IsNullOrEmpty(Value)
-                ? String.Format("{0} \"{1}\"", TokenKindHelpers.getTokenKindDesc(Kind), Value)
-                : TokenKindHelpers.getTokenKindDesc(Kind);
+                ? String.Format("{0} \"{1}\"", TokenKindHelpers.GetTokenKindDesc(Kind), Value)
+                : TokenKindHelpers.GetTokenKindDesc(Kind);
         }
     }
 
@@ -77,7 +72,7 @@ namespace GraphQLSharp.Language
 
     public static class TokenKindHelpers
     {
-        public static String[] tokenDescription = {
+        public static String[] TokenDescription = {
             "", // placeholder because EOF start at 1 to follow graphql-js
             "EOF",
             "!",
@@ -105,11 +100,11 @@ namespace GraphQLSharp.Language
         /// </summary>
         /// <param name="kind">The kind.</param>
         /// <returns></returns>
-        public static string getTokenKindDesc(TokenKind kind)
+        public static string GetTokenKindDesc(TokenKind kind)
         {
             if (kind >= TokenKind.EOF && kind <= TokenKind.STRING)
             {
-                return tokenDescription[(int)kind];
+                return TokenDescription[(int)kind];
             }
             return null;
         }
@@ -117,7 +112,6 @@ namespace GraphQLSharp.Language
 
     public class Lexer
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Lexer"/> class.
         /// Given a Source object, this returns a Lexer for that source.
@@ -133,19 +127,19 @@ namespace GraphQLSharp.Language
         public Lexer(Source source)
         {
             Source = source;
-            prevPosition = 0;
+            PrevPosition = 0;
         }
 
         public Source Source { get; private set; }
-        public int prevPosition { get; set; }
+        public int PrevPosition { get; set; }
 
         public Token NextToken(int? resetPosition)
         {
-            var token = readToken(
+            var token = ReadToken(
               Source,
-              resetPosition ?? prevPosition
+              resetPosition ?? PrevPosition
             );
-            prevPosition = token.End;
+            PrevPosition = token.End;
             return token;
         }
 
@@ -159,12 +153,12 @@ namespace GraphQLSharp.Language
         /// <param name="source">The source.</param>
         /// <param name="fromPosition">The from position.</param>
         /// <returns></returns>
-        private Token readToken(Source source, int fromPosition)
+        private Token ReadToken(Source source, int fromPosition)
         {
             var body = source.Body;
             var bodyLength = body.Length;
 
-            var position = positionAfterWhitespace(body, fromPosition);
+            var position = PositionAfterWhitespace(body, fromPosition);
             var code = body[position];
 
             if (position >= bodyLength) {
@@ -216,15 +210,15 @@ namespace GraphQLSharp.Language
             case 105: case 106: case 107: case 108: case 109: case 110: case 111:
             case 112: case 113: case 114: case 115: case 116: case 117: case 118:
             case 119: case 120: case 121: case 122:
-                return readName(source, position);
+                return ReadName(source, position);
             // -
             case 45:
             // 0-9
             case 48: case 49: case 50: case 51: case 52:
             case 53: case 54: case 55: case 56: case 57:
-                return readNumber(source, position, code);
+                return ReadNumber(source, position, code);
             // "
-            case 34: return readString(source, position);
+            case 34: return ReadString(source, position);
             }
 
             throw new SyntaxError(source, position,
@@ -239,7 +233,7 @@ namespace GraphQLSharp.Language
         /// <param name="body">The body.</param>
         /// <param name="startPosition">The start position.</param>
         /// <returns></returns>
-        private int positionAfterWhitespace(String body, int startPosition)
+        private static int PositionAfterWhitespace(String body, int startPosition)
         {
             var bodyLength = body.Length;
             var position = startPosition;
@@ -278,7 +272,7 @@ namespace GraphQLSharp.Language
         /// <param name="body">The body.</param>
         /// <param name="position">The position.</param>
         /// <returns></returns>
-        private int safeCode(String body, int position)
+        private static int SafeCode(String body, int position)
         {
             if (position < body.Length)
             {
@@ -298,7 +292,7 @@ namespace GraphQLSharp.Language
         /// <param name="start">The start.</param>
         /// <param name="firstCode">The first code.</param>
         /// <returns></returns>
-        private Token readNumber(Source source, int start, int firstCode)
+        private static Token ReadNumber(Source source, int start, int firstCode)
         {
             var code = firstCode;
             var body = source.Body;
@@ -306,16 +300,16 @@ namespace GraphQLSharp.Language
             var isFloat = false;
 
             if (code == 45) { // -
-                code = safeCode(body, ++position);
+                code = SafeCode(body, ++position);
             }
 
             if (code == 48) { // 0
-                code = safeCode(body, ++position);
+                code = SafeCode(body, ++position);
             } 
             else if (code >= 49 && code <= 57) 
             { // 1 - 9
                 do {
-                    code = safeCode(body, ++position);
+                    code = SafeCode(body, ++position);
                 } while (code >= 48 && code <= 57); // 0 - 9
             } 
             else
@@ -326,23 +320,23 @@ namespace GraphQLSharp.Language
             if (code == 46) { // .
                 isFloat = true;
 
-                code = safeCode(body, ++position);
+                code = SafeCode(body, ++position);
                 if (code >= 48 && code <= 57) { // 0 - 9
                     do {
-                        code = safeCode(body, ++position);
+                        code = SafeCode(body, ++position);
                     } while (code >= 48 && code <= 57); // 0 - 9
                 } else {
                     throw new SyntaxError(source, position, "Invalid number");
                 }
 
                 if (code == 101) { // e
-                    code = safeCode(body, ++position);
+                    code = SafeCode(body, ++position);
                     if (code == 45) { // -
-                        code = safeCode(body, ++position);
+                        code = SafeCode(body, ++position);
                     }
                     if (code >= 48 && code <= 57) { // 0 - 9
                         do {
-                            code = safeCode(body, ++position);
+                            code = SafeCode(body, ++position);
                         } while (code >= 48 && code <= 57); // 0 - 9
                     } else {
                         throw new SyntaxError(source, position, "Invalid number");
@@ -365,7 +359,7 @@ namespace GraphQLSharp.Language
         /// <param name="source">The source.</param>
         /// <param name="start">The start.</param>
         /// <returns></returns>
-        private Token readString(Source source, int start)
+        private static Token ReadString(Source source, int start)
         {
             var body = source.Body;
             var position = start + 1;
@@ -382,7 +376,7 @@ namespace GraphQLSharp.Language
                 if (code == 92) { // \
                     value += body.Substring(chunkStart, position -1 - chunkStart);
                     code = body[position];
-                    switch ((int)code) {
+                    switch (code) {
                         case 34: value += '"'; break;
                         case 47: value += '/'; break;
                         case 92: value += '\\'; break;
@@ -392,7 +386,7 @@ namespace GraphQLSharp.Language
                         case 114: value += '\r'; break;
                         case 116: value += '\t'; break;
                         case 117:
-                            var charCode = uniCharCode(
+                            var charCode = UniCharCode(
                                 body[position + 1],
                                 body[position + 2],
                                 body[position + 3],
@@ -435,8 +429,8 @@ namespace GraphQLSharp.Language
         /// <param name="c">The c.</param>
         /// <param name="d">The d.</param>
         /// <returns></returns>
-        private int uniCharCode(char a, char b, char c, char d) {
-          return char2hex(a) << 12 | char2hex(b) << 8 | char2hex(c) << 4 | char2hex(d);
+        private static int UniCharCode(char a, char b, char c, char d) {
+          return Char2Hex(a) << 12 | Char2Hex(b) << 8 | Char2Hex(c) << 4 | Char2Hex(d);
         }
         
         /// <summary>
@@ -448,7 +442,7 @@ namespace GraphQLSharp.Language
         /// </summary>
         /// <param name="a">The a.</param>
         /// <returns></returns>
-        private int char2hex(char a) {
+        private static int Char2Hex(char a) {
           return (
             a >= 48 && a <= 57 ? a - 48 : // 0-9
             a >= 65 && a <= 70 ? a - 55 : // A-F
@@ -464,7 +458,7 @@ namespace GraphQLSharp.Language
         /// <param name="source">The source.</param>
         /// <param name="position">The position.</param>
         /// <returns></returns>
-        private Token readName(Source source, int position) {
+        private static Token ReadName(Source source, int position) {
           var body = source.Body;
           var bodyLength = body.Length;
           var end = position + 1;
