@@ -97,5 +97,23 @@ namespace GraphQLSharp.Test.Language
             LexErr("1.0e", "Syntax Error GraphQL (1:5) Invalid number");
             LexErr("1.0eA", "Syntax Error GraphQL (1:5) Invalid number");
         }
+
+        [Fact]
+        public void LexerLexesPunctuation()
+        {
+            LexOne("!", TokenKind.BANG, 0, 1, null);
+            LexOne("$", TokenKind.DOLLAR, 0, 1, null);
+            LexOne("(", TokenKind.PAREN_L, 0, 1, null);
+            LexOne(")", TokenKind.PAREN_R, 0, 1, null);
+            LexOne("...", TokenKind.SPREAD, 0, 3, null);
+            LexOne(":", TokenKind.COLON, 0, 1, null);
+            LexOne("=", TokenKind.EQUALS, 0, 1, null);
+            LexOne("@", TokenKind.AT, 0, 1, null);
+            LexOne("[", TokenKind.BRACKET_L, 0, 1, null);
+            LexOne("]", TokenKind.BRACKET_R, 0, 1, null);
+            LexOne("{", TokenKind.BRACE_L, 0, 1, null);
+            LexOne("|", TokenKind.PIPE, 0, 1, null);
+            LexOne("}", TokenKind.BRACE_R, 0, 1, null);
+        }
     }
 }

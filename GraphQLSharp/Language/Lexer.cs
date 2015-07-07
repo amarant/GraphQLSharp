@@ -85,7 +85,7 @@ namespace GraphQLSharp.Language
             ")",
             "...",
             ":",
-            "",
+            "=",
             "@",
             "[",
             "]",
