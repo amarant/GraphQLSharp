@@ -78,6 +78,7 @@ namespace GraphQLSharp.Language
     public static class TokenKindHelpers
     {
         public static String[] tokenDescription = {
+            "", // placeholder because EOF start at 1 to follow graphql-js
             "EOF",
             "!",
             "$",
