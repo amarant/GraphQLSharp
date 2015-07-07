@@ -115,5 +115,13 @@ namespace GraphQLSharp.Test.Language
             LexOne("|", TokenKind.PIPE, 0, 1, null);
             LexOne("}", TokenKind.BRACE_R, 0, 1, null);
         }
+
+        [Fact]
+        public void LexerLexReportsUsefulUnknownCharacterError()
+        {
+            LexErr("..", "Syntax Error GraphQL (1:1) Unexpected character \".\"");
+            LexErr("?", "Syntax Error GraphQL (1:1) Unexpected character \"?\"");
+            LexErr("\u203B", "Syntax Error GraphQL (1:1) Unexpected character \"\u203B\"");
+        }
     }
 }

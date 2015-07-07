@@ -181,7 +181,8 @@ namespace GraphQLSharp.Language
             case 41: return new Token(TokenKind.PAREN_R, position, position + 1);
             // .
             case 46:
-                if (body[position + 1] == 46 &&
+                if (position + 2 < bodyLength &&
+                    body[position + 1] == 46 &&
                     body[position + 2] == 46) {
                 return new Token(TokenKind.SPREAD, position, position + 3);
                 }
