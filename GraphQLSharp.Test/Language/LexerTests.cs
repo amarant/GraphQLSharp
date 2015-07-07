@@ -85,5 +85,17 @@ namespace GraphQLSharp.Test.Language
             LexOne("-1.123e-4", TokenKind.FLOAT, 0, 9, "-1.123e-4");
             LexOne("-1.123e4567", TokenKind.FLOAT, 0, 11, "-1.123e4567");
         }
+
+        [Fact]
+        public void LexerLexReportsUsefulNumberErrors()
+        {
+            LexErr("+1", "Syntax Error GraphQL (1:1) Unexpected character \" + \"");
+            LexErr("1.", "Syntax Error GraphQL (1:3) Invalid number");
+            LexErr("1.A", "Syntax Error GraphQL (1:3) Invalid number");
+            LexErr("-A", "Syntax Error GraphQL (1:2) Invalid number");
+            LexErr("1.0e+4", "Syntax Error GraphQL (1:5) Invalid number");
+            LexErr("1.0e", "Syntax Error GraphQL (1:5) Invalid number");
+            LexErr("1.0eA", "Syntax Error GraphQL (1:5) Invalid number");
+        }
     }
 }
