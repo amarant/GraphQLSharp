@@ -271,6 +271,21 @@ namespace GraphQLSharp.Language
         }
 
         /// <summary>
+        /// Get the current code safely.
+        /// </summary>
+        /// <param name="body">The body.</param>
+        /// <param name="position">The position.</param>
+        /// <returns></returns>
+        private int safeCode(String body, int position)
+        {
+            if (position < body.Length)
+            {
+                return body[position];
+            }
+            return -1;
+        }
+
+        /// <summary>
         /// Reads a number token from the source file, either a float
         /// or an int depending on whether a decimal point appears.
         /// 
@@ -289,39 +304,43 @@ namespace GraphQLSharp.Language
             var isFloat = false;
 
             if (code == 45) { // -
-            code = body[++position];
+                code = safeCode(body, ++position);
             }
 
             if (code == 48) { // 0
-            code = body[++position];
-            } else if (code >= 49 && code <= 57) { // 1 - 9
-            do {
-                code = body[++position];
-            } while (code >= 48 && code <= 57); // 0 - 9
-            } else {
-            throw new SyntaxError(source, position, "Invalid number");
+                code = safeCode(body, ++position);
+            } 
+            else if (code >= 49 && code <= 57) 
+            { // 1 - 9
+                do {
+                    code = safeCode(body, ++position);
+                } while (code >= 48 && code <= 57); // 0 - 9
+            } 
+            else
+            {
+                throw new SyntaxError(source, position, "Invalid number");
             }
 
             if (code == 46) { // .
                 isFloat = true;
 
-                code = body[++position];
+                code = safeCode(body, ++position);
                 if (code >= 48 && code <= 57) { // 0 - 9
                     do {
-                    code = body[++position];
+                        code = safeCode(body, ++position);
                     } while (code >= 48 && code <= 57); // 0 - 9
                 } else {
                     throw new SyntaxError(source, position, "Invalid number");
                 }
 
                 if (code == 101) { // e
-                    code = body[++position];
+                    code = safeCode(body, ++position);
                     if (code == 45) { // -
-                        code = body[++position];
+                        code = safeCode(body, ++position);
                     }
                     if (code >= 48 && code <= 57) { // 0 - 9
                         do {
-                            code = body[++position];
+                            code = safeCode(body, ++position);
                         } while (code >= 48 && code <= 57); // 0 - 9
                     } else {
                         throw new SyntaxError(source, position, "Invalid number");

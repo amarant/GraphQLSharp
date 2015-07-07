@@ -74,7 +74,16 @@ namespace GraphQLSharp.Test.Language
         public void LexerLexesNumbers()
         {
             LexOne("4", TokenKind.INT, 0, 1, "4");
-
+            LexOne("4.123", TokenKind.FLOAT, 0, 5, "4.123");
+            LexOne("-4", TokenKind.INT, 0, 2, "-4");
+            LexOne("9", TokenKind.INT, 0, 1, "9");
+            LexOne("0", TokenKind.INT, 0, 1, "0");
+            LexOne("00", TokenKind.INT, 0, 1, "0");
+            LexOne("-4.123", TokenKind.FLOAT, 0, 6, "-4.123");
+            LexOne("0.123", TokenKind.FLOAT, 0, 5, "0.123");
+            LexOne("-1.123e4", TokenKind.FLOAT, 0, 8, "-1.123e4");
+            LexOne("-1.123e-4", TokenKind.FLOAT, 0, 9, "-1.123e-4");
+            LexOne("-1.123e4567", TokenKind.FLOAT, 0, 11, "-1.123e4567");
         }
     }
 }
