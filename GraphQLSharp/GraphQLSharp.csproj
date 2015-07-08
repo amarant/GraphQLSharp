@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Language\Ast.cs" />
     <Compile Include="Language\Lexer.cs" />
     <Compile Include="Language\Location.cs" />
     <Compile Include="Language\Error.cs" />
