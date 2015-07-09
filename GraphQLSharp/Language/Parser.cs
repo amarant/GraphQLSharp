@@ -207,14 +207,14 @@ namespace GraphQLSharp.Language
         /// <param name="parseFn">The parse function.</param>
         /// <param name="closeKind">Kind of the close.</param>
         /// <returns></returns>
-        public List<T> Many<T>(TokenKind openKind, Func<Parser, T> parseFn, TokenKind closeKind)
+        public List<T> Many<T>(TokenKind openKind, Func<T> parseFn, TokenKind closeKind)
         {
             Expect(openKind);
-            var nodes = new List<T>{parseFn(this)};
+            var nodes = new List<T>{parseFn()};
             // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
             while (!Skip(closeKind))
             {
-                nodes.Add(parseFn(this));
+                nodes.Add(parseFn());
             }
             return nodes;
         }
@@ -301,27 +301,163 @@ namespace GraphQLSharp.Language
             {
                 Operation = operation,
                 Name = ParseName(),
-                VariableDefinitions = ParseVariableDefinition(),
+                VariableDefinitions = ParseVariableDefinitions(),
                 Directives = ParseDirective(),
                 SelectionSet = ParseSelectionSet(),
                 Location = GetLocation(start),
             };
         }
 
+        public List<VariableDefinition> ParseVariableDefinitions()
+        {
+            if (Peek(TokenKind.PAREN_L))
+            {
+                return Many(TokenKind.PAREN_L, ParseVariableDefinition, TokenKind.PAREN_R);
+            }
+            else
+            {
+                return new List<VariableDefinition>();
+            }
+        }
+
+        public VariableDefinition ParseVariableDefinition()
+        {
+            var start = Token.Start;
+            var variable = ParseVariable();
+            Expect(TokenKind.COLON);
+            var type = ParseType();
+            return new VariableDefinition
+            {
+                Variable = variable,
+                Type = type,
+                DefaultValue = Skip(TokenKind.EQUALS) ? ParseValue(true) : null,
+                Location = GetLocation(start),
+            };
+        }
+
+        private Variable ParseVariable()
+        {
+            var start = Token.Start;
+            Expect(TokenKind.DOLLAR);
+            return new Variable
+            {
+                Name = ParseName(),
+                Location = GetLocation(start),
+            };
+        }
+
+        private SelectionSet ParseSelectionSet()
+        {
+            var start = Token.Start;
+            return new SelectionSet
+            {
+                Selections = Many(TokenKind.BRACE_L, ParseSelection, TokenKind.BRACE_R),
+                Location = GetLocation(start),
+            };
+        }
+
+        private ISelection ParseSelection()
+        {
+            if (Peek(TokenKind.SPREAD))
+            {
+                return ParseFragment();
+            }
+            else
+            {
+                return ParseField();
+            }
+        }
+
+        /// <summary>
+        /// Corresponds to both Field and Alias in the spec
+        /// </summary>
+        /// <returns></returns>
+        private Field ParseField()
+        {
+            var start = Token.Start;
+            var nameOrAlias = ParseName();
+            Name name;
+            Name alias;
+            if (Skip(TokenKind.COLON))
+            {
+                alias = nameOrAlias;
+                name = ParseName();
+            }
+            else
+            {
+                alias = null;
+                name = nameOrAlias;
+            }
+
+            return new Field
+            {
+                Alias = alias,
+                Name = name,
+                Arguments = ParseArguments(),
+                Directives = ParseDirectives(),
+                SelectionSet = Peek(TokenKind.BRACE_L) ? ParseSelectionSet() : null,
+                Location = GetLocation(start),
+            };
+        }
+
+        private List<Argument> ParseArguments()
+        {
+            if (Peek(TokenKind.PAREN_L))
+            {
+                return Many(TokenKind.PAREN_L, ParseArgument, TokenKind.PAREN_R);
+            }
+            else
+            {
+                return new List<Argument>();
+            }
+        }
+
+        private Argument ParseArgument()
+        {
+            var start = Token.Start;
+            var name = ParseName();
+            Expect(TokenKind.COLON);
+            var value = ParseValue(false);
+            return new Argument
+            {
+                Name = name,
+                Value = value,
+                Location = GetLocation(start),
+            };
+        }
+
+        private List<Directive> ParseDirectives()
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        private ISelection ParseFragment()
+        {
+            throw new NotImplementedException();
+        }
+
+        private IValue ParseValue(bool b)
+        {
+            throw new NotImplementedException();
+        }
+
+        private IType ParseType()
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+
         private List<Directive> ParseDirective()
         {
             throw new NotImplementedException();
         }
 
-        private List<VariableDefinition> ParseVariableDefinition()
-        {
-            throw new NotImplementedException();
-        }
 
-        private SelectionSet ParseSelectionSet()
-        {
-            throw new NotImplementedException();
-        }
+
 
         private IDefinition ParseFragmentDefinition()
         {
