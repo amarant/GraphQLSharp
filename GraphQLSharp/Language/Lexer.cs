@@ -37,10 +37,21 @@ namespace GraphQLSharp.Language
         /// </returns>
         public override string ToString()
         {
+            return this.GetTokenDesc();
+        }
+
+        /// <summary>
+        /// A helper function to describe a token as a string for debugging
+        /// </summary>
+        /// <returns></returns>
+        public string GetTokenDesc()
+        {
             return String.IsNullOrEmpty(Value)
                 ? String.Format("{0} \"{1}\"", TokenKindHelpers.GetTokenKindDesc(Kind), Value)
                 : TokenKindHelpers.GetTokenKindDesc(Kind);
         }
+
+
     }
 
     /// <summary>
@@ -133,7 +144,7 @@ namespace GraphQLSharp.Language
         public Source Source { get; private set; }
         public int PrevPosition { get; set; }
 
-        public Token NextToken(int? resetPosition)
+        public Token NextToken(int? resetPosition = null)
         {
             var token = ReadToken(
               Source,
