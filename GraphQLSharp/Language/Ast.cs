@@ -56,9 +56,9 @@ namespace GraphQLSharp.Language
 
     #region Name
 
-    public class Name : INode
+    public class Name : ANode, INode
     {
-        public NodeType Kind
+        public override NodeType Kind
         {
             get { return NodeType.Name; }
         }
@@ -69,9 +69,9 @@ namespace GraphQLSharp.Language
 
     #region Document
 
-    public class Document : INode
+    public class Document : ANode
     {
-        public NodeType Kind
+        public override NodeType Kind
         {
             get { return NodeType.Document; }
         }
@@ -90,9 +90,9 @@ namespace GraphQLSharp.Language
         Mutation,
     }
 
-    public class OperationDefinition : INode, IDefinition
+    public class OperationDefinition : ANode, IDefinition
     {
-        public NodeType Kind
+        public override NodeType Kind
         {
             get { return NodeType.OperationDefinition; }
         }
