@@ -149,7 +149,7 @@ namespace GraphQLSharp.Language
         {
             get { return NodeType.Field; }
         }
-
+        public Name Alias { get; set; }
         public Name Name { get; set; }
         public List<Argument> Arguments { get; set; }
         public List<Directive> Directives { get; set; }
