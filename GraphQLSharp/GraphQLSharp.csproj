@@ -43,6 +43,7 @@
     <Compile Include="Language\Lexer.cs" />
     <Compile Include="Language\Location.cs" />
     <Compile Include="Language\Error.cs" />
+    <Compile Include="Language\Parser.cs" />
     <Compile Include="Language\Source.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
