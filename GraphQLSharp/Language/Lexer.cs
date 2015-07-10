@@ -168,12 +168,13 @@ namespace GraphQLSharp.Language
             var bodyLength = body.Length;
 
             var position = PositionAfterWhitespace(body, fromPosition);
-            var code = body[position];
 
-            if (position >= bodyLength) {
+            if (position >= bodyLength)
+            {
                 return new Token(TokenKind.EOF, position, position);
             }
 
+            var code = body[position];
             switch ((int)code) {
             // !
             case 33: return new Token(TokenKind.BANG, position, position + 1);
