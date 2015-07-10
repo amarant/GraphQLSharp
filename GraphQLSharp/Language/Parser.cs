@@ -23,6 +23,10 @@ namespace GraphQLSharp.Language
         /// disables that behavior for performance or testing.
         /// </summary>
         public bool? NoSource { get; set; }
+
+        public ParseOptions()
+        {
+        }
     }
 
     public class Parser
@@ -45,7 +49,7 @@ namespace GraphQLSharp.Language
         public Parser(Source source, ParseOptions options)
         {
             Source = source;
-            Options = options;
+            Options = options ?? new ParseOptions();
             _lexToken = new Lexer(source);
             PrevEnd = 0;
             Token = _lexToken.NextToken();
@@ -56,9 +60,11 @@ namespace GraphQLSharp.Language
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="options">The options.</param>
-        public static void Parse(Source source, ParseOptions options)
+        /// <returns></returns>
+        public static Document Parse(Source source, ParseOptions options = null)
         {
             var parser = new Parser(source, options);
+            return parser.ParseDocument();
         }
 
         /// <summary>
@@ -66,9 +72,10 @@ namespace GraphQLSharp.Language
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="options">The options.</param>
-        public static void Parse(String source, ParseOptions options)
+        /// <returns></returns>
+        public static Document Parse(String source, ParseOptions options = null)
         {
-            Parse(new Source(source), options);
+            return Parse(new Source(source), options);
         }
 
         /// <summary>
@@ -159,6 +166,27 @@ namespace GraphQLSharp.Language
         }
 
         /// <summary>
+        /// If the next token is a keyword with the given value, return that token after
+        /// advancing the parser. Otherwise, do not change the parser state and return
+        /// false.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        /// <exception cref="SyntaxError"></exception>
+        public Token ExpectKeyword(string value)
+        {
+            var token = Token;
+            if (token.Kind == TokenKind.NAME
+                && token.Value == value)
+            {
+                Advance();
+                return Token;
+            }
+            throw new SyntaxError(Source, token.Start,
+                String.Format("Expected \"{0}\", found {1}", value, token.GetTokenDesc()));
+        }
+
+        /// <summary>
         /// Helper function for creating an error when an unexpected lexed token
         /// is encountered.
         /// </summary>
@@ -184,14 +212,14 @@ namespace GraphQLSharp.Language
         /// <param name="parseFn">The parse function.</param>
         /// <param name="closeKind">Kind of the close.</param>
         /// <returns></returns>
-        public List<T> Any<T>(TokenKind openKind, Func<Parser, T> parseFn, TokenKind closeKind)
+        public List<T> Any<T>(TokenKind openKind, Func<T> parseFn, TokenKind closeKind)
         {
             Expect(openKind);
             var nodes = new List<T>();
             // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
             while (!Skip(closeKind))
             {
-                nodes.Add(parseFn(this));
+                nodes.Add(parseFn());
             }
             return nodes;
         }
@@ -259,6 +287,10 @@ namespace GraphQLSharp.Language
                         throw Unexpected();
                     }
                 }
+                else
+                {
+                    throw Unexpected();
+                }
             } while (!Skip(TokenKind.EOF));
             return new Document
             {
@@ -302,7 +334,7 @@ namespace GraphQLSharp.Language
                 Operation = operation,
                 Name = ParseName(),
                 VariableDefinitions = ParseVariableDefinitions(),
-                Directives = ParseDirective(),
+                Directives = ParseDirectives(),
                 SelectionSet = ParseSelectionSet(),
                 Location = GetLocation(start),
             };
@@ -426,43 +458,239 @@ namespace GraphQLSharp.Language
             };
         }
 
-        private List<Directive> ParseDirectives()
-        {
-            throw new NotImplementedException();
-        }
+        // Implements the parsing rules in the Fragments section.
 
-
-
+        /// <summary>
+        /// Parses the fragment.
+        /// Corresponds to both FragmentSpread and InlineFragment in the spec
+        /// </summary>
+        /// <returns></returns>
         private ISelection ParseFragment()
         {
-            throw new NotImplementedException();
+            var start = Token.Start;
+            Expect(TokenKind.SPREAD);
+            if (Token.Value == "on")
+            {
+                Advance();
+                return new InlineFragment
+                {
+                    TypeCondition = ParseName(),
+                    Directives = ParseDirectives(),
+                    SelectionSet = ParseSelectionSet(),
+                    Location = GetLocation(start),
+                };
+            }
+
+            return new FragmentSpread
+            {
+                Name = ParseName(),
+                Directives = ParseDirectives(),
+                Location = GetLocation(start),
+            };
         }
 
-        private IValue ParseValue(bool b)
+        private FragmentDefinition ParseFragmentDefinition()
         {
-            throw new NotImplementedException();
+            var start = Token.Start;
+            ExpectKeyword("fragment");
+            var name = ParseName();
+            ExpectKeyword("on");
+            var typeCondition = ParseName();
+            return new FragmentDefinition
+            {
+                Name = name,
+                TypeCondition = typeCondition,
+                Directives = ParseDirectives(),
+                SelectionSet = ParseSelectionSet(),
+                Location = GetLocation(start),
+            };
         }
 
+        // Implements the parsing rules in the Values section.
+
+        private IValue ParseVariableValue()
+        {
+            return ParseValue(false);
+        }
+
+        private IValue ParseConstValue()
+        {
+            return ParseValue(true);
+        }
+
+        private IValue ParseValue(bool isConst)
+        {
+            var token = Token;
+            switch (token.Kind)
+            {
+                case TokenKind.BRACKET_L:
+                    return ParseArray(isConst);
+                case TokenKind.BRACE_L:
+                    return ParseObject(isConst);
+                case TokenKind.INT:
+                    Advance();
+                    return new IntValue
+                    {
+                        Value = token.Value,
+                        Location = GetLocation(token.Start),
+                    };
+                case TokenKind.FLOAT:
+                    Advance();
+                    return new FloatValue
+                    {
+                        Value = token.Value,
+                        Location = GetLocation(token.Start),
+                    };
+                case TokenKind.STRING:
+                    Advance();
+                    return new StringValue
+                    {
+                        Value = token.Value,
+                        Location = GetLocation(token.Start),
+                    };
+                case TokenKind.NAME:
+                    Advance();
+                    switch (token.Value)
+                    {
+                        case "true":
+                        case "false":
+                            return new BooleanValue
+                            {
+                                Value = token.Value == "true",
+                                Location = GetLocation(token.Start),
+                            };
+                    }
+                    return new EnumValue
+                    {
+                        Value = token.Value,
+                        Location = GetLocation(token.Start),
+                    };
+                case TokenKind.DOLLAR:
+                    if (!isConst)
+                    {
+                        return ParseVariable();
+                    }
+                    break;
+            }
+            throw Unexpected();
+        }
+
+        private ArrayValue ParseArray(bool isConst)
+        {
+            var start = Token.Start;
+            var value = isConst
+                ? Any(TokenKind.BRACKET_L, ParseConstValue, TokenKind.BRACKET_R)
+                : Any(TokenKind.BRACKET_L, ParseVariableValue, TokenKind.BRACKET_R);
+            return new ArrayValue
+            {
+                Values = value,
+                Location = GetLocation(start),
+            };
+        }
+
+        private ObjectValue ParseObject(bool isConst)
+        {
+            var start = Token.Start;
+            Expect(TokenKind.BRACE_L);
+            var fieldNames = new Dictionary<String, bool>();
+            var fields = new List<ObjectField>();
+            while (!Skip(TokenKind.BRACE_R))
+            {
+                fields.Add(ParseObjectField(isConst, fieldNames));
+            }
+            return new ObjectValue
+            {
+                Fields = fields,
+                Location = GetLocation(start),
+            };
+        }
+
+        private ObjectField ParseObjectField(bool isConst,
+            Dictionary<String, bool> fieldNames)
+        {
+            var start = Token.Start;
+            var name = ParseName();
+            if (fieldNames.ContainsKey(name.Value))
+            {
+                throw new SyntaxError(Source, start,
+                    String.Format("Duplicate input object field {0}.", name.Value));
+            }
+            fieldNames.Add(name.Value, true);
+            Expect(TokenKind.COLON);
+            var value = ParseValue(isConst);
+            return new ObjectField
+            {
+                Name = name,
+                Value = value,
+                Location = GetLocation(start),
+            };
+        }
+
+        // Implements the parsing rules in the Directives section.
+
+        private List<Directive> ParseDirectives()
+        {
+            var directives = new List<Directive>();
+            while (Peek(TokenKind.AT))
+            {
+                directives.Add(ParseDirective());
+            }
+            return directives;
+        }
+
+        private Directive ParseDirective()
+        {
+            var start = Token.Start;
+            Expect(TokenKind.AT);
+            return new Directive
+            {
+                Name = ParseName(),
+                Value = Skip(TokenKind.COLON) ? ParseValue(false) : null,
+                Location = GetLocation(start),
+            };
+        }
+
+        // Implements the parsing rules in the Types section.
+
+
+
+        /// <summary>
+        /// Parses the type.
+        /// Handles the Type: TypeName, ListType, and NonNullType parsing rules.
+        /// </summary>
+        /// <returns></returns>
         private IType ParseType()
         {
-            throw new NotImplementedException();
+            var start = Token.Start;
+            INameOrListType type;
+            if (Skip(TokenKind.BRACE_L))
+            {
+                var innerType = ParseType();
+                Expect(TokenKind.BRACKET_R);
+                type = new ListType
+                {
+                    Type = innerType,
+                    Location = GetLocation(start),
+                };
+            }
+            else
+            {
+                type = ParseName();
+            }
+            if (Skip(TokenKind.BANG))
+            {
+                return new NonNullType
+                {
+                    Type = type,
+                    Location = GetLocation(start),
+                };
+            }
+
+            return type;
         }
 
 
 
-
-        private List<Directive> ParseDirective()
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-
-        private IDefinition ParseFragmentDefinition()
-        {
-            throw new NotImplementedException();
-        }
 
 
     }
