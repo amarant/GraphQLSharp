@@ -67,7 +67,7 @@ namespace GraphQLSharp.Language
 
     #region Name
 
-    public class Name : ANode, INode
+    public class Name : ANode, IType, INameOrListType
     {
         public override NodeType Kind
         {
@@ -108,7 +108,6 @@ namespace GraphQLSharp.Language
             get { return NodeType.OperationDefinition; }
         }
 
-        public Location Location { get; set; }
         public OperationType Operation { get; set; }
         public Name Name { get; set; }
         public List<VariableDefinition> VariableDefinitions { get; set; }
@@ -128,7 +127,7 @@ namespace GraphQLSharp.Language
         public IValue DefaultValue { get; set; }
     }
 
-    public class Variable : ANode
+    public class Variable : ANode, IValue
     {
         public override NodeType Kind
         {
@@ -263,7 +262,7 @@ namespace GraphQLSharp.Language
             get { return NodeType.BooleanValue; }
         }
 
-        public String Value { get; set; }
+        public Boolean Value { get; set; }
     }
 
     public class EnumValue : ANode, IValue
@@ -293,7 +292,7 @@ namespace GraphQLSharp.Language
             get { return NodeType.IntValue; }
         }
 
-        public List<ObjectField> Values { get; set; }
+        public List<ObjectField> Fields { get; set; }
     }
 
     public class ObjectField : ANode
@@ -318,7 +317,7 @@ namespace GraphQLSharp.Language
             get { return NodeType.Directive; }
         }
         public Name Name { get; set; }
-        public List<Argument> Arguments { get; set; }
+        public IValue Value { get; set; }
     }
 
     #endregion Directives
@@ -327,10 +326,13 @@ namespace GraphQLSharp.Language
 
     public interface IType : INode
     {
-        NodeType Kind { get; }
     }
 
-    public class ListType : ANode, IType
+    public interface INameOrListType : IType
+    {
+    }
+
+    public class ListType : ANode, INameOrListType
     {
         public override NodeType Kind
         {
@@ -347,6 +349,7 @@ namespace GraphQLSharp.Language
             get { return NodeType.NonNullType; }
         }
 
+        public INameOrListType Type { get; set; }
     }
 
     #endregion Types
