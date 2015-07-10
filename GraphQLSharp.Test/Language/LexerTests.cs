@@ -19,7 +19,7 @@ namespace GraphQLSharp.Test.Language
         {
             Action action = () => (new Lexer(new Source(body)))
                 .NextToken(null);
-            action.ShouldThrow<SyntaxError>(message);
+            action.ShouldThrow<SyntaxError>().Where(err => err.Message.StartsWith(message));
         }
 
         [Fact]
