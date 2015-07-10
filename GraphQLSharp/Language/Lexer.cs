@@ -47,11 +47,9 @@ namespace GraphQLSharp.Language
         public string GetTokenDesc()
         {
             return String.IsNullOrEmpty(Value)
-                ? String.Format("{0} \"{1}\"", TokenKindHelpers.GetTokenKindDesc(Kind), Value)
-                : TokenKindHelpers.GetTokenKindDesc(Kind);
+                ? TokenKindHelpers.GetTokenKindDesc(Kind)
+                : String.Format("{0} \"{1}\"", TokenKindHelpers.GetTokenKindDesc(Kind), Value);
         }
-
-
     }
 
     /// <summary>
