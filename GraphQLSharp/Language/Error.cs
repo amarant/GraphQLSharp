@@ -16,7 +16,7 @@ namespace GraphQLSharp.Language
             Location = new SourceLocation(source, position);
         }
 
-        public Source Source { get; set; }
+        public new Source Source { get; set; }
         public int Position { get; set; }
         public string Description { get; set; }
         public SourceLocation Location { get; set; }
