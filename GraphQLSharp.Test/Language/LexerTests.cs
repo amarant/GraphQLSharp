@@ -89,7 +89,7 @@ namespace GraphQLSharp.Test.Language
         [Fact]
         public void LexerLexReportsUsefulNumberErrors()
         {
-            LexErr("+1", "Syntax Error GraphQL (1:1) Unexpected character \" + \"");
+            LexErr("+1", "Syntax Error GraphQL (1:1) Unexpected character \"+\"");
             LexErr("1.", "Syntax Error GraphQL (1:3) Invalid number");
             LexErr("1.A", "Syntax Error GraphQL (1:3) Invalid number");
             LexErr("-A", "Syntax Error GraphQL (1:2) Invalid number");
