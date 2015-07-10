@@ -71,6 +71,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Language\LexerTests.cs" />
+    <Compile Include="Language\ParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Language\kitchen-sink.graphql" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>
