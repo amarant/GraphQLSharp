@@ -95,90 +95,69 @@ fragment MissingOn Type
         {
             var source = new Source("{\n  node(id: 4) {\n    id,\n    name\n  }\n}\n");
             var result = Parser.Parse(source);
-            result.ShouldBeEquivalentTo(new Document
-            {
-                Location = new Location(0, 41, source),
-                Definitions = new List<IDefinition>
+            result.ShouldBeEquivalentTo(Node.CreateDocument(
+                location: new Location(0, 41, source),
+                definitions: new List<Node>
                 {
-                    new OperationDefinition
-                    {
-                        Location = new Location(0, 40, source),
-                        Operation = OperationType.Query,
-                        Name = null,
-                        VariableDefinitions = null,
-                        Directives = new List<Directive>(),
-                        SelectionSet = new SelectionSet
-                        {
-                            Location = new Location(0, 40, source),
-                            Selections = new List<ISelection>
+                    Node.CreateOperationDefinition(
+                        location: new Location(0, 40, source),
+                        operation: OperationType.Query,
+                        name: null,
+                        variableDefinitions: null,
+                        directives: new List<Node>(),
+                        selectionSet: Node.CreateSelectionSet(
+                            location: new Location(0, 40, source),
+                            selections: new List<Node>
                             {
-                                new Field
-                                {
-                                    Location = new Location(4, 38, source),
-                                    Alias = null,
-                                    Name = new Name
-                                    {
-                                        Location = new Location(4, 8, source),
-                                        Value = "node",
-                                    },
-                                    Arguments = new List<Argument>
-                                    {
-                                        new Argument
+                                Node.CreateField(
+                                    location: new Location(4, 38, source),
+                                    alias: null,
+                                    name: Node.CreateName(
+                                        location: new Location(4, 8, source),
+                                        value: "node"),
+                                    arguments: new List<Node>{
+                                        Node.CreateArgument(
+                                            name: Node.CreateName(
+                                                location: new Location(9, 11, source),
+                                                value: "id"),
+                                            value: Node.CreateIntValue(
+                                                location: new Location(13, 14, source),
+                                                value: "4"),
+                                            location: new Location(9, 14, source)
+                                        )}
+                                    ,
+                                    directives: new List<Node>(),
+                                    selectionSet: Node.CreateSelectionSet(
+                                        location: new Location(16, 38, source),
+                                        selections: new List<Node>
                                         {
-                                            Name = new Name
-                                            {
-                                                Location = new Location(9, 11, source),
-                                                Value = "id",
-                                            },
-                                            Value = new IntValue
-                                            {
-                                                Location = new Location(13, 14, source),
-                                                Value = "4",
-                                            },
-                                            Location = new Location(9, 14, source),
-                                        },
-                                    },
-                                    Directives = new List<Directive>(),
-                                    SelectionSet = new SelectionSet
-                                    {
-                                        Location = new Location(16, 38, source),
-                                        Selections = new List<ISelection>
-                                        {
-                                            new Field
-                                            {
-                                                Location = new Location(22, 24, source),
-                                                Alias = null,
-                                                Name = new Name
-                                                {
-                                                    Location = new Location(22, 24, source),
-                                                    Value = "id",
-                                                },
-                                                Arguments = new List<Argument>(),
-                                                Directives = new List<Directive>(),
-                                                SelectionSet = null,
-                                            },
-                                            new Field
-                                            {
-                                                Location = new Location(30, 34, source),
-                                                Alias = null,
-                                                Name = new Name
-                                                {
-                                                    Location = new Location(30, 34, source),
-                                                    Value = "name",
-                                                },
-                                                Arguments = new List<Argument>(),
-                                                Directives = new List<Directive>(),
-                                                SelectionSet = null,
-                                            }
+                                            Node.CreateField(
+                                                location: new Location(22, 24, source),
+                                                alias: null,
+                                                name: Node.CreateName(
+                                                    location: new Location(22, 24, source),
+                                                    value: "id"),
+                                                arguments: new List<Node>(),
+                                                directives: new List<Node>(),
+                                                selectionSet: null),
+                                            Node.CreateField(
+                                                location: new Location(30, 34, source),
+                                                alias: null,
+                                                name: Node.CreateName(
+                                                    location: new Location(30, 34, source),
+                                                    value: "name"),
+                                                arguments: new List<Node>(),
+                                                directives: new List<Node>(),
+                                                selectionSet: null)
                                         }
-                                    }
-                                }
+                                    )
+                                )
                             }
-                        }
-                    }
+                        )
+                    )
                 }
                 
-            });
+            ));
             
         }
     }

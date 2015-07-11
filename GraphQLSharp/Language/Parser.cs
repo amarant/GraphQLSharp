@@ -61,7 +61,7 @@ namespace GraphQLSharp.Language
         /// <param name="source">The source.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public static Document Parse(Source source, ParseOptions options = null)
+        public static Node Parse(Source source, ParseOptions options = null)
         {
             var parser = new Parser(source, options);
             return parser.ParseDocument();
@@ -73,7 +73,7 @@ namespace GraphQLSharp.Language
         /// <param name="source">The source.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public static Document Parse(String source, ParseOptions options = null)
+        public static Node Parse(String source, ParseOptions options = null)
         {
             return Parse(new Source(source), options);
         }
@@ -251,18 +251,18 @@ namespace GraphQLSharp.Language
         /// Converts a name lex token into a name parse node.
         /// </summary>
         /// <returns></returns>
-        public Name ParseName()
+        public Node ParseName()
         {
             var token = Expect(TokenKind.NAME);
-            return new Name(token.Value, GetLocation(token.Start));
+            return Node.CreateName(token.Value, GetLocation(token.Start));
         }
 
         // Implements the parsing rules in the Document section.
 
-        public Document ParseDocument()
+        public Node ParseDocument()
         {
             var start = this.Token.Start;
-            var definitions = new List<IDefinition>();
+            var definitions = new List<Node>();
             do
             {
                 if (Peek(TokenKind.BRACE_L))
@@ -288,7 +288,7 @@ namespace GraphQLSharp.Language
                     throw Unexpected();
                 }
             } while (!Skip(TokenKind.EOF));
-            return new Document(
+            return Node.CreateDocument(
                 definitions: definitions,
                 location: GetLocation(start)
             );
@@ -296,16 +296,16 @@ namespace GraphQLSharp.Language
 
         // Implements the parsing rules in the Operations section.
 
-        private OperationDefinition ParseOperationDefinition()
+        private Node ParseOperationDefinition()
         {
             var start = this.Token.Start;
             if (Peek(TokenKind.BRACE_L))
             {
-                return new OperationDefinition(
+                return Node.CreateOperationDefinition(
                     operation: OperationType.Query,
                     name: null,
                     variableDefinitions: null,
-                    directives: new List<Directive>(),
+                    directives: new List<Node>(),
                     selectionSet: ParseSelectionSet(),
                     location: GetLocation(start)
                 );
@@ -323,7 +323,7 @@ namespace GraphQLSharp.Language
                 default:
                     throw new Exception();
             }
-            return new OperationDefinition(
+            return Node.CreateOperationDefinition(
                 operation: operation,
                 name: ParseName(),
                 variableDefinitions: ParseVariableDefinitions(),
@@ -333,7 +333,7 @@ namespace GraphQLSharp.Language
             );
         }
 
-        public List<VariableDefinition> ParseVariableDefinitions()
+        public List<Node> ParseVariableDefinitions()
         {
             if (Peek(TokenKind.PAREN_L))
             {
@@ -341,17 +341,17 @@ namespace GraphQLSharp.Language
             }
             else
             {
-                return new List<VariableDefinition>();
+                return new List<Node>();
             }
         }
 
-        public VariableDefinition ParseVariableDefinition()
+        public Node ParseVariableDefinition()
         {
             var start = Token.Start;
             var variable = ParseVariable();
             Expect(TokenKind.COLON);
             var type = ParseType();
-            return new VariableDefinition(
+            return Node.CreateVariableDefinition(
                 variable: variable,
                 type: type,
                 defaultValue: Skip(TokenKind.EQUALS) ? ParseValue(true) : null,
@@ -359,28 +359,25 @@ namespace GraphQLSharp.Language
             );
         }
 
-        private Variable ParseVariable()
+        private Node ParseVariable()
         {
             var start = Token.Start;
             Expect(TokenKind.DOLLAR);
-            return new Variable
-            {
-                Name = ParseName(),
-                Location = GetLocation(start),
-            };
+            return Node.CreateVariable(
+                name: ParseName(),
+                location: GetLocation(start)
+            );
         }
 
-        private SelectionSet ParseSelectionSet()
+        private Node ParseSelectionSet()
         {
             var start = Token.Start;
-            return new SelectionSet
-            {
-                Selections = Many(TokenKind.BRACE_L, ParseSelection, TokenKind.BRACE_R),
-                Location = GetLocation(start),
-            };
+            return Node.CreateSelectionSet(
+                selections: Many(TokenKind.BRACE_L, ParseSelection, TokenKind.BRACE_R),
+                location: GetLocation(start));
         }
 
-        private ISelection ParseSelection()
+        private Node ParseSelection()
         {
             if (Peek(TokenKind.SPREAD))
             {
@@ -396,12 +393,12 @@ namespace GraphQLSharp.Language
         /// Corresponds to both Field and Alias in the spec
         /// </summary>
         /// <returns></returns>
-        private Field ParseField()
+        private Node ParseField()
         {
             var start = Token.Start;
             var nameOrAlias = ParseName();
-            Name name;
-            Name alias;
+            Node name;
+            Node alias;
             if (Skip(TokenKind.COLON))
             {
                 alias = nameOrAlias;
@@ -413,18 +410,16 @@ namespace GraphQLSharp.Language
                 name = nameOrAlias;
             }
 
-            return new Field
-            {
-                Alias = alias,
-                Name = name,
-                Arguments = ParseArguments(),
-                Directives = ParseDirectives(),
-                SelectionSet = Peek(TokenKind.BRACE_L) ? ParseSelectionSet() : null,
-                Location = GetLocation(start),
-            };
+            return Node.CreateField(
+                alias: alias,
+                name: name,
+                arguments: ParseArguments(),
+                directives: ParseDirectives(),
+                selectionSet: Peek(TokenKind.BRACE_L) ? ParseSelectionSet() : null,
+                location: GetLocation(start));
         }
 
-        private List<Argument> ParseArguments()
+        private List<Node> ParseArguments()
         {
             if (Peek(TokenKind.PAREN_L))
             {
@@ -432,22 +427,20 @@ namespace GraphQLSharp.Language
             }
             else
             {
-                return new List<Argument>();
+                return new List<Node>();
             }
         }
 
-        private Argument ParseArgument()
+        private Node ParseArgument()
         {
             var start = Token.Start;
             var name = ParseName();
             Expect(TokenKind.COLON);
             var value = ParseValue(false);
-            return new Argument
-            {
-                Name = name,
-                Value = value,
-                Location = GetLocation(start),
-            };
+            return Node.CreateArgument(
+                name: name,
+                value: value,
+                location: GetLocation(start));
         }
 
         // Implements the parsing rules in the Fragments section.
@@ -457,60 +450,54 @@ namespace GraphQLSharp.Language
         /// Corresponds to both FragmentSpread and InlineFragment in the spec
         /// </summary>
         /// <returns></returns>
-        private ISelection ParseFragment()
+        private Node ParseFragment()
         {
             var start = Token.Start;
             Expect(TokenKind.SPREAD);
             if (Token.Value == "on")
             {
                 Advance();
-                return new InlineFragment
-                {
-                    TypeCondition = ParseName(),
-                    Directives = ParseDirectives(),
-                    SelectionSet = ParseSelectionSet(),
-                    Location = GetLocation(start),
-                };
+                return Node.CreateInlineFragment(
+                    typeCondition: ParseName(),
+                    directives: ParseDirectives(),
+                    selectionSet: ParseSelectionSet(),
+                    location: GetLocation(start));
             }
 
-            return new FragmentSpread
-            {
-                Name = ParseName(),
-                Directives = ParseDirectives(),
-                Location = GetLocation(start),
-            };
+            return Node.CreateFragmentSpread(
+                name: ParseName(),
+                directives: ParseDirectives(),
+                location: GetLocation(start));
         }
 
-        private FragmentDefinition ParseFragmentDefinition()
+        private Node ParseFragmentDefinition()
         {
             var start = Token.Start;
             ExpectKeyword("fragment");
             var name = ParseName();
             ExpectKeyword("on");
             var typeCondition = ParseName();
-            return new FragmentDefinition
-            {
-                Name = name,
-                TypeCondition = typeCondition,
-                Directives = ParseDirectives(),
-                SelectionSet = ParseSelectionSet(),
-                Location = GetLocation(start),
-            };
+            return Node.CreateFragmentDefinition(
+                name = name,
+                typeCondition = typeCondition,
+                directives: ParseDirectives(),
+                selectionSet: ParseSelectionSet(),
+                location: GetLocation(start));
         }
 
         // Implements the parsing rules in the Values section.
 
-        private IValue ParseVariableValue()
+        private Node ParseVariableValue()
         {
             return ParseValue(false);
         }
 
-        private IValue ParseConstValue()
+        private Node ParseConstValue()
         {
             return ParseValue(true);
         }
 
-        private IValue ParseValue(bool isConst)
+        private Node ParseValue(bool isConst)
         {
             var token = Token;
             switch (token.Kind)
@@ -521,42 +508,32 @@ namespace GraphQLSharp.Language
                     return ParseObject(isConst);
                 case TokenKind.INT:
                     Advance();
-                    return new IntValue
-                    {
-                        Value = token.Value,
-                        Location = GetLocation(token.Start),
-                    };
+                    return Node.CreateIntValue(
+                        value: token.Value,
+                        location: GetLocation(token.Start));
                 case TokenKind.FLOAT:
                     Advance();
-                    return new FloatValue
-                    {
-                        Value = token.Value,
-                        Location = GetLocation(token.Start),
-                    };
+                    return Node.CreateFloatValue(
+                        value: token.Value,
+                        location: GetLocation(token.Start));
                 case TokenKind.STRING:
                     Advance();
-                    return new StringValue
-                    {
-                        Value = token.Value,
-                        Location = GetLocation(token.Start),
-                    };
+                    return Node.CreateStringValue(
+                        value: token.Value,
+                        location: GetLocation(token.Start));
                 case TokenKind.NAME:
                     Advance();
                     switch (token.Value)
                     {
                         case "true":
                         case "false":
-                            return new BooleanValue
-                            {
-                                Value = token.Value == "true",
-                                Location = GetLocation(token.Start),
-                            };
+                            return Node.CreateBooleanValue(
+                                value: token.Value == "true",
+                                location: GetLocation(token.Start));
                     }
-                    return new EnumValue
-                    {
-                        Value = token.Value,
-                        Location = GetLocation(token.Start),
-                    };
+                    return Node.CreateEnumValue(
+                        value: token.Value,
+                        location: GetLocation(token.Start));
                 case TokenKind.DOLLAR:
                     if (!isConst)
                     {
@@ -567,62 +544,56 @@ namespace GraphQLSharp.Language
             throw Unexpected();
         }
 
-        private ArrayValue ParseArray(bool isConst)
+        private Node ParseArray(bool isConst)
         {
             var start = Token.Start;
             var value = isConst
                 ? Any(TokenKind.BRACKET_L, ParseConstValue, TokenKind.BRACKET_R)
                 : Any(TokenKind.BRACKET_L, ParseVariableValue, TokenKind.BRACKET_R);
-            return new ArrayValue
-            {
-                Values = value,
-                Location = GetLocation(start),
-            };
+            return Node.CreateArrayValue(
+                values: value,
+                location: GetLocation(start));
         }
 
-        private ObjectValue ParseObject(bool isConst)
+        private Node ParseObject(bool isConst)
         {
             var start = Token.Start;
             Expect(TokenKind.BRACE_L);
             var fieldNames = new Dictionary<String, bool>();
-            var fields = new List<ObjectField>();
+            var fields = new List<Node>();
             while (!Skip(TokenKind.BRACE_R))
             {
                 fields.Add(ParseObjectField(isConst, fieldNames));
             }
-            return new ObjectValue
-            {
-                Fields = fields,
-                Location = GetLocation(start),
-            };
+            return Node.CreateObjectValue(
+                fields: fields,
+                location: GetLocation(start));
         }
 
-        private ObjectField ParseObjectField(bool isConst,
+        private Node ParseObjectField(bool isConst,
             Dictionary<String, bool> fieldNames)
         {
             var start = Token.Start;
             var name = ParseName();
-            if (fieldNames.ContainsKey(name.Value))
+            if (fieldNames.ContainsKey((String) name["Value"]))
             {
                 throw new SyntaxError(Source, start,
-                    String.Format("Duplicate input object field {0}.", name.Value));
+                    String.Format("Duplicate input object field {0}.", name["Value"]));
             }
-            fieldNames.Add(name.Value, true);
+            fieldNames.Add((String) name["Value"], true);
             Expect(TokenKind.COLON);
             var value = ParseValue(isConst);
-            return new ObjectField
-            {
-                Name = name,
-                Value = value,
-                Location = GetLocation(start),
-            };
+            return Node.CreateObjectField(
+                name: name,
+                value: value,
+                location: GetLocation(start));
         }
 
         // Implements the parsing rules in the Directives section.
 
-        private List<Directive> ParseDirectives()
+        private List<Node> ParseDirectives()
         {
-            var directives = new List<Directive>();
+            var directives = new List<Node>();
             while (Peek(TokenKind.AT))
             {
                 directives.Add(ParseDirective());
@@ -630,16 +601,14 @@ namespace GraphQLSharp.Language
             return directives;
         }
 
-        private Directive ParseDirective()
+        private Node ParseDirective()
         {
             var start = Token.Start;
             Expect(TokenKind.AT);
-            return new Directive
-            {
-                Name = ParseName(),
-                Value = Skip(TokenKind.COLON) ? ParseValue(false) : null,
-                Location = GetLocation(start),
-            };
+            return Node.CreateDirective(
+                name: ParseName(),
+                value: Skip(TokenKind.COLON) ? ParseValue(false) : null,
+                location: GetLocation(start));
         }
 
         // Implements the parsing rules in the Types section.
@@ -651,19 +620,17 @@ namespace GraphQLSharp.Language
         /// Handles the Type: TypeName, ListType, and NonNullType parsing rules.
         /// </summary>
         /// <returns></returns>
-        private IType ParseType()
+        private Node ParseType()
         {
             var start = Token.Start;
-            INameOrListType type;
+            Node type;
             if (Skip(TokenKind.BRACE_L))
             {
                 var innerType = ParseType();
                 Expect(TokenKind.BRACKET_R);
-                type = new ListType
-                {
-                    Type = innerType,
-                    Location = GetLocation(start),
-                };
+                type = Node.CreateListType(
+                    type: innerType,
+                    location: GetLocation(start));
             }
             else
             {
@@ -671,19 +638,12 @@ namespace GraphQLSharp.Language
             }
             if (Skip(TokenKind.BANG))
             {
-                return new NonNullType
-                {
-                    Type = type,
-                    Location = GetLocation(start),
-                };
+                return Node.CreateNonNullType(
+                    type: type,
+                    location: GetLocation(start));
             }
 
             return type;
         }
-
-
-
-
-
     }
 }
