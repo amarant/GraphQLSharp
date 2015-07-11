@@ -57,12 +57,15 @@ namespace GraphQLSharp.Language
     public interface INode
     {
         NodeType Kind { get; }
+        void Accept(Visitor visitor);
     }
 
     public abstract class ANode : INode
     {
         public abstract NodeType Kind { get; }
         public Location Location { get; set; }
+
+        public abstract void Accept(Visitor visitor);
     }
 
     #region Name
@@ -74,6 +77,12 @@ namespace GraphQLSharp.Language
             get { return NodeType.Name; }
         }
         public String Value { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterName(this);
+            visitor.LeaveName(this);
+        }
     }
 
     #endregion Name
@@ -88,11 +97,21 @@ namespace GraphQLSharp.Language
         }
 
         public List<IDefinition> Definitions { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterDocument(this);
+            if (Definitions != null)
+                foreach (var definition in Definitions)
+                {
+                    definition.Accept(visitor);
+                }
+            visitor.LeaveDocument(this);
+        }
     }
 
-    public interface IDefinition
+    public interface IDefinition : INode
     {
-        NodeType Kind { get; }
     }
 
     public enum OperationType
@@ -113,6 +132,24 @@ namespace GraphQLSharp.Language
         public List<VariableDefinition> VariableDefinitions { get; set; }
         public List<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterOperationDefinition(this);
+            if (Name != null) Name.Accept(visitor);
+            if (VariableDefinitions != null)
+                foreach (var definition in VariableDefinitions)
+                {
+                    definition.Accept(visitor);
+                }
+            if (Directives != null)
+                foreach (var directive in Directives)
+                {
+                    directive.Accept(visitor);
+                }
+            if (SelectionSet != null) SelectionSet.Accept(visitor);
+            visitor.LeaveOperationDefinition(this);
+        }
     }
 
     public class VariableDefinition : ANode
@@ -125,6 +162,15 @@ namespace GraphQLSharp.Language
         public Variable Variable { get; set; }
         public IType Type { get; set; }
         public IValue DefaultValue { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterVariableDefinition(this);
+            if (Variable != null) Variable.Accept(visitor);
+            if (Type != null) Type.Accept(visitor);
+            if (DefaultValue != null) DefaultValue.Accept(visitor);
+            visitor.LeaveVariableDefinition(this);
+        }
     }
 
     public class Variable : ANode, IValue
@@ -135,6 +181,13 @@ namespace GraphQLSharp.Language
         }
 
         public Name Name { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterVariable(this);
+            if (Name != null) Name.Accept(visitor);
+            visitor.LeaveVariable(this);
+        }
     }
 
     public class SelectionSet : ANode
@@ -146,11 +199,20 @@ namespace GraphQLSharp.Language
 
         public List<ISelection> Selections { get; set; }
 
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterSelectionSet(this);
+            if (Selections != null)
+                foreach (var selection in Selections)
+                {
+                    selection.Accept(visitor);
+                }
+            visitor.LeaveSelectionSet(this);
+        }
     }
 
-    public interface ISelection
+    public interface ISelection : INode
     {
-        NodeType Kind { get; }
     }
 
     public class Field : ANode, ISelection
@@ -164,6 +226,25 @@ namespace GraphQLSharp.Language
         public List<Argument> Arguments { get; set; }
         public List<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterField(this);
+            if (Alias != null) Alias.Accept(visitor);
+            if (Name != null) Name.Accept(visitor);
+            if (Arguments != null)
+                foreach (var argument in Arguments)
+                {
+                    argument.Accept(visitor);
+                }
+            if (Directives != null)
+                foreach (var directive in Directives)
+                {
+                    directive.Accept(visitor);
+                }
+            if (SelectionSet != null) SelectionSet.Accept(visitor);
+            visitor.LeaveField(this);
+        }
     }
 
     public class Argument : ANode
@@ -175,6 +256,14 @@ namespace GraphQLSharp.Language
 
         public Name Name { get; set; }
         public IValue Value { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterArgument(this);
+            if (Name != null) Name.Accept(visitor);
+            if (Value != null) Value.Accept(visitor);
+            visitor.LeaveArgument(this);
+        }
     }
 
     #endregion Document
@@ -190,6 +279,18 @@ namespace GraphQLSharp.Language
 
         public Name Name { get; set; }
         public List<Directive> Directives { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterFragmentSpread(this);
+            if (Name != null) Name.Accept(visitor);
+            if (Directives != null)
+                foreach (var directive in Directives)
+                {
+                    directive.Accept(visitor);
+                }
+            visitor.LeaveFragmentSpread(this);
+        }
     }
 
     public class InlineFragment : ANode, ISelection
@@ -202,6 +303,19 @@ namespace GraphQLSharp.Language
         public Name TypeCondition { get; set; }
         public List<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterInlineFragment(this);
+            if (TypeCondition != null) TypeCondition.Accept(visitor);
+            if (Directives != null)
+                foreach (var directive in Directives)
+                {
+                    directive.Accept(visitor);
+                }
+            if (SelectionSet != null) SelectionSet.Accept(visitor);
+            visitor.LeaveInlineFragment(this);
+        }
     }
 
     public class FragmentDefinition : ANode, IDefinition
@@ -214,15 +328,28 @@ namespace GraphQLSharp.Language
         public Name TypeCondition { get; set; }
         public List<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterFragmentDefinition(this);
+            if (Name != null) Name.Accept(visitor);
+            if (TypeCondition != null) TypeCondition.Accept(visitor);
+            if (Directives != null)
+                foreach (var directive in Directives)
+                {
+                    directive.Accept(visitor);
+                }
+            if (SelectionSet != null) SelectionSet.Accept(visitor);
+            visitor.LeaveFragmentDefinition(this);
+        }
     }
 
     #endregion Fragments
 
     #region Values
 
-    public interface IValue
+    public interface IValue : INode
     {
-        NodeType Kind { get; }
     }
 
     public class IntValue : ANode, IValue
@@ -233,6 +360,12 @@ namespace GraphQLSharp.Language
         }
 
         public String Value { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterIntValue(this);
+            visitor.LeaveIntValue(this);
+        }
     }
 
     public class FloatValue : ANode, IValue
@@ -243,6 +376,12 @@ namespace GraphQLSharp.Language
         }
 
         public String Value { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterFloatValue(this);
+            visitor.LeaveFloatValue(this);
+        }
     }
 
     public class StringValue : ANode, IValue
@@ -253,6 +392,12 @@ namespace GraphQLSharp.Language
         }
 
         public String Value { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterStringValue(this);
+            visitor.LeaveStringValue(this);
+        }
     }
 
     public class BooleanValue : ANode, IValue
@@ -263,6 +408,12 @@ namespace GraphQLSharp.Language
         }
 
         public Boolean Value { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterBooleanValue(this);
+            visitor.LeaveBooleanValue(this);
+        }
     }
 
     public class EnumValue : ANode, IValue
@@ -273,6 +424,12 @@ namespace GraphQLSharp.Language
         }
 
         public String Value { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterEnumValue(this);
+            visitor.LeaveEnumValue(this);
+        }
     }
 
     public class ArrayValue : ANode, IValue
@@ -283,6 +440,17 @@ namespace GraphQLSharp.Language
         }
 
         public List<IValue> Values { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterArrayValue(this);
+            if (Values != null)
+                foreach (var value in Values)
+                {
+                    value.Accept(visitor);
+                }
+            visitor.LeaveArrayValue(this);
+        }
     }
 
     public class ObjectValue : ANode, IValue
@@ -293,6 +461,17 @@ namespace GraphQLSharp.Language
         }
 
         public List<ObjectField> Fields { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterObjectValue(this);
+            if (Fields != null)
+                foreach (var field in Fields)
+                {
+                    field.Accept(visitor);
+                }
+            visitor.LeaveObjectValue(this);
+        }
     }
 
     public class ObjectField : ANode
@@ -304,6 +483,13 @@ namespace GraphQLSharp.Language
         public Name Name { get; set; }
         public IValue Value { get; set; }
 
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterObjectField(this);
+            if (Name != null) Name.Accept(visitor);
+            if (Value != null) Value.Accept(visitor);
+            visitor.LeaveObjectField(this);
+        }
     }
 
     #endregion Values
@@ -318,6 +504,14 @@ namespace GraphQLSharp.Language
         }
         public Name Name { get; set; }
         public IValue Value { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterDirective(this);
+            if (Name != null) Name.Accept(visitor);
+            if (Value != null) Value.Accept(visitor);
+            visitor.LeaveDirective(this);
+        }
     }
 
     #endregion Directives
@@ -340,6 +534,13 @@ namespace GraphQLSharp.Language
         }
 
         public IType Type { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterListType(this);
+            if (Type != null) Type.Accept(visitor);
+            visitor.LeaveListType(this);
+        }
     }
 
     public class NonNullType : ANode, IType
@@ -350,6 +551,13 @@ namespace GraphQLSharp.Language
         }
 
         public INameOrListType Type { get; set; }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.EnterNonNullType(this);
+            if (Type != null) Type.Accept(visitor);
+            visitor.LeaveNonNullType(this);
+        }
     }
 
     #endregion Types

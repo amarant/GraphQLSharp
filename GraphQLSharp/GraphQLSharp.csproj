@@ -45,6 +45,7 @@
     <Compile Include="Language\Error.cs" />
     <Compile Include="Language\Parser.cs" />
     <Compile Include="Language\Source.cs" />
+    <Compile Include="Language\Visitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
