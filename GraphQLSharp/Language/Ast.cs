@@ -57,7 +57,7 @@ namespace GraphQLSharp.Language
     public interface INode
     {
         NodeType Kind { get; }
-        void Accept(Visitor visitor);
+        VisitAction Accept(Visitor visitor);
     }
 
     public abstract class ANode : INode
@@ -65,7 +65,24 @@ namespace GraphQLSharp.Language
         public abstract NodeType Kind { get; }
         public Location Location { get; set; }
 
-        public abstract void Accept(Visitor visitor);
+        public abstract VisitAction Accept(Visitor visitor);
+
+        protected VisitAction ReturnAction(VisitAction enterAction)
+        {
+            switch (enterAction.VisitActionType)
+            {
+                case VisitActionType.Skip:
+                    return VisitAction.NoAction;
+                case VisitActionType.Break:
+                    return VisitAction.Break;
+                case VisitActionType.Replace:
+                    return enterAction;
+                    //return new VisitAction(
+                    //    VisitActionType.Replace,
+                    //    enterAction.ReplaceNode);
+            }
+            throw new Exception("not possible");
+        }
     }
 
     #region Name
@@ -78,10 +95,19 @@ namespace GraphQLSharp.Language
         }
         public String Value { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterName(this);
-            visitor.LeaveName(this);
+            var enterAction = visitor.Enter(this);
+            if (enterAction.VisitActionType != VisitActionType.NoAction)
+            {
+                return ReturnAction(enterAction);
+            }
+            var leaveAction = visitor.Leave(this);
+            if (leaveAction.VisitActionType != VisitActionType.NoAction)
+            {
+                return ReturnAction(leaveAction);
+            }
+            return VisitAction.NoAction;
         }
     }
 
@@ -98,15 +124,34 @@ namespace GraphQLSharp.Language
 
         public List<IDefinition> Definitions { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterDocument(this);
+            var enterAction = visitor.Enter(this);
+            if (enterAction.VisitActionType != VisitActionType.NoAction)
+            {
+                return ReturnAction(enterAction);
+            }
             if (Definitions != null)
                 foreach (var definition in Definitions)
                 {
-                    definition.Accept(visitor);
+                    var definitionAction = definition.Accept(visitor);
+                    switch (definitionAction.VisitActionType)
+                    {
+                        case VisitActionType.Break:
+                            return VisitAction.Break;
+                        case VisitActionType.Replace:
+                            return enterAction;
+                        //return new VisitAction(
+                        //    VisitActionType.Replace,
+                        //    enterAction.ReplaceNode);
+                    }
                 }
-            visitor.LeaveDocument(this);
+            var leaveAction = visitor.Leave(this);
+            if (leaveAction.VisitActionType != VisitActionType.NoAction)
+            {
+                return ReturnAction(leaveAction);
+            }
+            return VisitAction.NoAction;
         }
     }
 
@@ -133,9 +178,9 @@ namespace GraphQLSharp.Language
         public List<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterOperationDefinition(this);
+            visitor.Enter(this);
             if (Name != null) Name.Accept(visitor);
             if (VariableDefinitions != null)
                 foreach (var definition in VariableDefinitions)
@@ -148,7 +193,8 @@ namespace GraphQLSharp.Language
                     directive.Accept(visitor);
                 }
             if (SelectionSet != null) SelectionSet.Accept(visitor);
-            visitor.LeaveOperationDefinition(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -163,13 +209,14 @@ namespace GraphQLSharp.Language
         public IType Type { get; set; }
         public IValue DefaultValue { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterVariableDefinition(this);
+            visitor.Enter(this);
             if (Variable != null) Variable.Accept(visitor);
             if (Type != null) Type.Accept(visitor);
             if (DefaultValue != null) DefaultValue.Accept(visitor);
-            visitor.LeaveVariableDefinition(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -182,11 +229,12 @@ namespace GraphQLSharp.Language
 
         public Name Name { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterVariable(this);
+            visitor.Enter(this);
             if (Name != null) Name.Accept(visitor);
-            visitor.LeaveVariable(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -199,15 +247,16 @@ namespace GraphQLSharp.Language
 
         public List<ISelection> Selections { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterSelectionSet(this);
+            visitor.Enter(this);
             if (Selections != null)
                 foreach (var selection in Selections)
                 {
                     selection.Accept(visitor);
                 }
-            visitor.LeaveSelectionSet(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -227,9 +276,9 @@ namespace GraphQLSharp.Language
         public List<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterField(this);
+            visitor.Enter(this);
             if (Alias != null) Alias.Accept(visitor);
             if (Name != null) Name.Accept(visitor);
             if (Arguments != null)
@@ -243,7 +292,8 @@ namespace GraphQLSharp.Language
                     directive.Accept(visitor);
                 }
             if (SelectionSet != null) SelectionSet.Accept(visitor);
-            visitor.LeaveField(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -257,12 +307,13 @@ namespace GraphQLSharp.Language
         public Name Name { get; set; }
         public IValue Value { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterArgument(this);
+            visitor.Enter(this);
             if (Name != null) Name.Accept(visitor);
             if (Value != null) Value.Accept(visitor);
-            visitor.LeaveArgument(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -280,16 +331,17 @@ namespace GraphQLSharp.Language
         public Name Name { get; set; }
         public List<Directive> Directives { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterFragmentSpread(this);
+            visitor.Enter(this);
             if (Name != null) Name.Accept(visitor);
             if (Directives != null)
                 foreach (var directive in Directives)
                 {
                     directive.Accept(visitor);
                 }
-            visitor.LeaveFragmentSpread(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -304,9 +356,9 @@ namespace GraphQLSharp.Language
         public List<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterInlineFragment(this);
+            visitor.Enter(this);
             if (TypeCondition != null) TypeCondition.Accept(visitor);
             if (Directives != null)
                 foreach (var directive in Directives)
@@ -314,7 +366,8 @@ namespace GraphQLSharp.Language
                     directive.Accept(visitor);
                 }
             if (SelectionSet != null) SelectionSet.Accept(visitor);
-            visitor.LeaveInlineFragment(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -329,9 +382,9 @@ namespace GraphQLSharp.Language
         public List<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterFragmentDefinition(this);
+            visitor.Enter(this);
             if (Name != null) Name.Accept(visitor);
             if (TypeCondition != null) TypeCondition.Accept(visitor);
             if (Directives != null)
@@ -340,7 +393,8 @@ namespace GraphQLSharp.Language
                     directive.Accept(visitor);
                 }
             if (SelectionSet != null) SelectionSet.Accept(visitor);
-            visitor.LeaveFragmentDefinition(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -361,10 +415,11 @@ namespace GraphQLSharp.Language
 
         public String Value { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterIntValue(this);
-            visitor.LeaveIntValue(this);
+            visitor.Enter(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -377,10 +432,11 @@ namespace GraphQLSharp.Language
 
         public String Value { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterFloatValue(this);
-            visitor.LeaveFloatValue(this);
+            visitor.Enter(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -393,10 +449,11 @@ namespace GraphQLSharp.Language
 
         public String Value { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterStringValue(this);
-            visitor.LeaveStringValue(this);
+            visitor.Enter(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -409,10 +466,11 @@ namespace GraphQLSharp.Language
 
         public Boolean Value { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterBooleanValue(this);
-            visitor.LeaveBooleanValue(this);
+            visitor.Enter(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -425,10 +483,11 @@ namespace GraphQLSharp.Language
 
         public String Value { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterEnumValue(this);
-            visitor.LeaveEnumValue(this);
+            visitor.Enter(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -441,15 +500,16 @@ namespace GraphQLSharp.Language
 
         public List<IValue> Values { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterArrayValue(this);
+            visitor.Enter(this);
             if (Values != null)
                 foreach (var value in Values)
                 {
                     value.Accept(visitor);
                 }
-            visitor.LeaveArrayValue(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -462,15 +522,16 @@ namespace GraphQLSharp.Language
 
         public List<ObjectField> Fields { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterObjectValue(this);
+            visitor.Enter(this);
             if (Fields != null)
                 foreach (var field in Fields)
                 {
                     field.Accept(visitor);
                 }
-            visitor.LeaveObjectValue(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -483,12 +544,13 @@ namespace GraphQLSharp.Language
         public Name Name { get; set; }
         public IValue Value { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterObjectField(this);
+            visitor.Enter(this);
             if (Name != null) Name.Accept(visitor);
             if (Value != null) Value.Accept(visitor);
-            visitor.LeaveObjectField(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -505,12 +567,13 @@ namespace GraphQLSharp.Language
         public Name Name { get; set; }
         public IValue Value { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterDirective(this);
+            visitor.Enter(this);
             if (Name != null) Name.Accept(visitor);
             if (Value != null) Value.Accept(visitor);
-            visitor.LeaveDirective(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -535,11 +598,12 @@ namespace GraphQLSharp.Language
 
         public IType Type { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterListType(this);
+            visitor.Enter(this);
             if (Type != null) Type.Accept(visitor);
-            visitor.LeaveListType(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 
@@ -552,11 +616,12 @@ namespace GraphQLSharp.Language
 
         public INameOrListType Type { get; set; }
 
-        public override void Accept(Visitor visitor)
+        public override VisitAction Accept(Visitor visitor)
         {
-            visitor.EnterNonNullType(this);
+            visitor.Enter(this);
             if (Type != null) Type.Accept(visitor);
-            visitor.LeaveNonNullType(this);
+            visitor.Leave(this);
+            return VisitAction.NoAction;
         }
     }
 

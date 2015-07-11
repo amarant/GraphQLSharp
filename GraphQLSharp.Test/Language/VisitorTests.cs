@@ -27,13 +27,13 @@ namespace GraphQLSharp.Test.Language
             public override VisitAction Enter(INode node)
             {
                 _output.WriteLine("+" + node.GetType().Name);
-                return NoAction;
+                return VisitAction.NoAction;
             }
 
             public override VisitAction Leave(INode node)
             {
                 _output.WriteLine("-" + node.GetType().Name);
-                return NoAction;
+                return VisitAction.NoAction;
             }
         }
 
