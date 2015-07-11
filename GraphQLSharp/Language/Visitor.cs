@@ -11,12 +11,15 @@ namespace GraphQLSharp.Language
         NoAction,
         Skip,
         Break,
-        Delete,
         Replace
     }
 
     public class VisitAction
     {
+        public static readonly VisitAction NoAction = new VisitAction(VisitActionType.NoAction);
+        public static readonly VisitAction Skip = new VisitAction(VisitActionType.Skip);
+        public static readonly VisitAction Break = new VisitAction(VisitActionType.Break);
+
         public VisitActionType VisitActionType { get; set; }
         public INode ReplaceNode { get; set; }
 
@@ -30,226 +33,224 @@ namespace GraphQLSharp.Language
 
     public class Visitor
     {
-        public static readonly VisitAction NoAction = new VisitAction(VisitActionType.NoAction);
-
         public virtual VisitAction EnterName(Name name)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveName(Name name)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterDocument(Document document)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveDocument(Document document)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterOperationDefinition(OperationDefinition operationDefinition)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveOperationDefinition(OperationDefinition operationDefinition)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterVariableDefinition(VariableDefinition variableDefinition)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveVariableDefinition(VariableDefinition variableDefinition)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterVariable(Variable variable)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveVariable(Variable variable)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterSelectionSet(SelectionSet selectionSet)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveSelectionSet(SelectionSet selectionSet)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterField(Field field)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveField(Field field)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterArgument(Argument argument)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveArgument(Argument argument)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterFragmentSpread(FragmentSpread fragmentSpread)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveFragmentSpread(FragmentSpread fragmentSpread)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterInlineFragment(InlineFragment inlineFragment)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveInlineFragment(InlineFragment inlineFragment)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterFragmentDefinition(FragmentDefinition fragmentDefinition)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveFragmentDefinition(FragmentDefinition fragmentDefinition)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterIntValue(IntValue intValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveIntValue(IntValue intValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterFloatValue(FloatValue floatValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveFloatValue(FloatValue floatValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterStringValue(StringValue stringValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveStringValue(StringValue stringValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterBooleanValue(BooleanValue booleanValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveBooleanValue(BooleanValue booleanValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterEnumValue(EnumValue enumValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveEnumValue(EnumValue enumValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterArrayValue(ArrayValue arrayValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveArrayValue(ArrayValue arrayValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterObjectValue(ObjectValue objectValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveObjectValue(ObjectValue objectValue)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterObjectField(ObjectField objectField)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveObjectField(ObjectField objectField)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterDirective(Directive directive)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveDirective(Directive directive)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterListType(ListType listType)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveListType(ListType listType)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction EnterNonNullType(NonNullType nonNullType)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
 
         public virtual VisitAction LeaveNonNullType(NonNullType nonNullType)
         {
-            return NoAction;
+            return VisitAction.NoAction;
         }
     }
 
