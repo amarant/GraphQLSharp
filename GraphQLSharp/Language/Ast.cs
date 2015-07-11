@@ -97,15 +97,10 @@ namespace GraphQLSharp.Language
 
         public override VisitAction Accept(Visitor visitor)
         {
-            var enterAction = visitor.EnterName(this);
-            if (enterAction.VisitActionType != VisitActionType.NoAction)
+            var visitAction = visitor.VisitName(this);
+            if (visitAction.VisitActionType != VisitActionType.NoAction)
             {
-                return ReturnAction(enterAction);
-            }
-            var leaveAction = visitor.LeaveName(this);
-            if (leaveAction.VisitActionType != VisitActionType.NoAction)
-            {
-                return ReturnAction(leaveAction);
+                return ReturnAction(visitAction);
             }
             return VisitAction.NoAction;
         }
