@@ -57,23 +57,37 @@ namespace GraphQLSharp.Language
     public interface INode
     {
         NodeType Kind { get; }
+        Dictionary<string, object> Properties { get; set; }
+        Location Location { get; set; }
     }
 
     public abstract class ANode : INode
     {
+        public ANode(Location location)
+        {
+            Properties = new Dictionary<string, object>();
+            Location = location;
+        }
+
         public abstract NodeType Kind { get; }
         public Location Location { get; set; }
+        public Dictionary<string, object> Properties { get; set; }
     }
 
     #region Name
 
     public class Name : ANode, IType, INameOrListType
     {
+        public Name(String value, Location location)
+            :base(location)
+        {
+            Properties.Add("Value", value);
+        }
+
         public override NodeType Kind
         {
             get { return NodeType.Name; }
         }
-        public String Value { get; set; }
     }
 
     #endregion Name
@@ -82,12 +96,16 @@ namespace GraphQLSharp.Language
 
     public class Document : ANode
     {
+        public Document(List<IDefinition> definitions, Location location)
+            : base(location)
+        {
+            Properties.Add("Definitions", definitions);
+        }
+
         public override NodeType Kind
         {
             get { return NodeType.Document; }
         }
-
-        public List<IDefinition> Definitions { get; set; }
     }
 
     public interface IDefinition
@@ -103,6 +121,22 @@ namespace GraphQLSharp.Language
 
     public class OperationDefinition : ANode, IDefinition
     {
+        public OperationDefinition(
+            OperationType operation, 
+            Name name,
+            List<VariableDefinition> variableDefinitions, 
+            List<Directive> directives,
+            SelectionSet selectionSet,
+            Location location)
+            : base(location)
+        {
+            Properties.Add("Operation", operation);
+            Properties.Add("Name", name);
+            Properties.Add("VariableDefinitions", variableDefinitions);
+            Properties.Add("Directives", directives);
+            Properties.Add("SelectionSet", selectionSet);
+        }
+
         public override NodeType Kind
         {
             get { return NodeType.OperationDefinition; }
@@ -117,6 +151,18 @@ namespace GraphQLSharp.Language
 
     public class VariableDefinition : ANode
     {
+        public VariableDefinition(
+            Variable variable, 
+            IType type, 
+            IValue defaultValue,
+            Location location)
+            : base(location)
+        {
+            Properties.Add("Variable", variable);
+            Properties.Add("Type", type);
+            Properties.Add("DefaultValue", defaultValue);
+        }
+
         public override NodeType Kind
         {
             get { return NodeType.VariableDefinition; }

@@ -254,11 +254,7 @@ namespace GraphQLSharp.Language
         public Name ParseName()
         {
             var token = Expect(TokenKind.NAME);
-            return new Name
-            {
-                Value = token.Value,
-                Location = GetLocation(token.Start),
-            };
+            return new Name(token.Value, GetLocation(token.Start));
         }
 
         // Implements the parsing rules in the Document section.
@@ -292,11 +288,10 @@ namespace GraphQLSharp.Language
                     throw Unexpected();
                 }
             } while (!Skip(TokenKind.EOF));
-            return new Document
-            {
-                Definitions = definitions,
-                Location = GetLocation(start),
-            };
+            return new Document(
+                definitions: definitions,
+                location: GetLocation(start)
+            );
         }
 
         // Implements the parsing rules in the Operations section.
@@ -306,15 +301,14 @@ namespace GraphQLSharp.Language
             var start = this.Token.Start;
             if (Peek(TokenKind.BRACE_L))
             {
-                return new OperationDefinition
-                {
-                    Operation = OperationType.Query,
-                    Name = null,
-                    VariableDefinitions = null,
-                    Directives = new List<Directive>(),
-                    SelectionSet = ParseSelectionSet(),
-                    Location = GetLocation(start),
-                };
+                return new OperationDefinition(
+                    operation: OperationType.Query,
+                    name: null,
+                    variableDefinitions: null,
+                    directives: new List<Directive>(),
+                    selectionSet: ParseSelectionSet(),
+                    location: GetLocation(start)
+                );
             }
             var operationToken = Expect(TokenKind.NAME);
             OperationType operation;
@@ -329,15 +323,14 @@ namespace GraphQLSharp.Language
                 default:
                     throw new Exception();
             }
-            return new OperationDefinition
-            {
-                Operation = operation,
-                Name = ParseName(),
-                VariableDefinitions = ParseVariableDefinitions(),
-                Directives = ParseDirectives(),
-                SelectionSet = ParseSelectionSet(),
-                Location = GetLocation(start),
-            };
+            return new OperationDefinition(
+                operation: operation,
+                name: ParseName(),
+                variableDefinitions: ParseVariableDefinitions(),
+                directives: ParseDirectives(),
+                selectionSet: ParseSelectionSet(),
+                location: GetLocation(start)
+            );
         }
 
         public List<VariableDefinition> ParseVariableDefinitions()
@@ -358,13 +351,12 @@ namespace GraphQLSharp.Language
             var variable = ParseVariable();
             Expect(TokenKind.COLON);
             var type = ParseType();
-            return new VariableDefinition
-            {
-                Variable = variable,
-                Type = type,
-                DefaultValue = Skip(TokenKind.EQUALS) ? ParseValue(true) : null,
-                Location = GetLocation(start),
-            };
+            return new VariableDefinition(
+                variable: variable,
+                type: type,
+                defaultValue: Skip(TokenKind.EQUALS) ? ParseValue(true) : null,
+                location: GetLocation(start)
+            );
         }
 
         private Variable ParseVariable()
