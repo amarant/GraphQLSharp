@@ -207,5 +207,62 @@ namespace GraphQLSharp.Test.Language
             visitor.Visit(ast);
             visitor.DidVisitAddedField.Should().BeTrue();
         }
+
+        public class VisitedNodes : StackWalker
+        {
+            public ImmutableArray<Tuple<bool, NodeType, object>> Visited = ImmutableArray<Tuple<bool, NodeType, object>>.Empty;
+
+            public override INode Enter(INode node)
+            {
+                AddVisited(node, true);
+                return (node is Field && (node as Field).Name.Value == "b") ? null : node;
+            }
+
+            private void AddVisited(INode node, bool isEnter)
+            {
+                object value = null;
+                var valueProp = node.GetType().GetProperty("Value");
+                if (valueProp != null)
+                {
+                    value = valueProp.GetValue(node);
+                }
+                Visited = Visited.Add(Tuple.Create(isEnter, node.Kind, value));
+            }
+
+            public override INode Leave(INode node)
+            {
+                AddVisited(node, false);
+                return node;
+            }
+        }
+
+        [Fact]
+        public void AllowsSkippingASubTree()
+        {
+            var ast = Parser.Parse("{ a, b { x }, c }", new ParseOptions
+            {
+                NoLocation = true,
+            });
+            var visitor = new VisitedNodes();
+            visitor.Visit(ast);
+            visitor.Visited.ShouldBeEquivalentTo(ImmutableArray.Create(
+                Tuple.Create(true, NodeType.Document, (object)null),
+                Tuple.Create(true, NodeType.OperationDefinition, (object)null),
+                Tuple.Create(true, NodeType.SelectionSet, (object)null),
+                Tuple.Create(true, NodeType.Field, (object)null),
+                Tuple.Create(true, NodeType.Name, (object)"a"),
+                Tuple.Create(false, NodeType.Name, (object)"a"),
+                Tuple.Create(false, NodeType.Field, (object)null),
+                Tuple.Create(true, NodeType.Field, (object)null),
+                Tuple.Create(true, NodeType.Field, (object)null),
+                Tuple.Create(true, NodeType.Name, (object)"c"),
+                Tuple.Create(false, NodeType.Name, (object)"c"),
+                Tuple.Create(false, NodeType.Field, (object)null),
+                Tuple.Create(false, NodeType.SelectionSet, (object)null),
+                Tuple.Create(false, NodeType.OperationDefinition, (object)null),
+                Tuple.Create(false, NodeType.Document, (object)null)
+                ));
+        }
+    
     }
 }
