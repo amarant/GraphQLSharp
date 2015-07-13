@@ -1,480 +1,960 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
+using GraphQLSharp.ImmutableUtils;
 
 namespace GraphQLSharp.Language
 {
-    public enum VisitActionType
+    public abstract class Visitor
     {
-        NoAction,
-        Skip,
-        Break,
-        Replace
-    }
-
-    public class VisitAction
-    {
-        public static readonly VisitAction NoAction = new VisitAction(VisitActionType.NoAction);
-        public static readonly VisitAction Skip = new VisitAction(VisitActionType.Skip);
-        public static readonly VisitAction Break = new VisitAction(VisitActionType.Break);
-
-        public VisitActionType VisitActionType { get; set; }
-        public INode ReplaceNode { get; set; }
-
-        public VisitAction(VisitActionType visitActionType, 
-            INode replaceNode = null)
+        public virtual INode Visit(INode node)
         {
-            VisitActionType = visitActionType;
-            ReplaceNode = replaceNode;
-        }
-    }
-
-    public class Visitor
-    {
-        public virtual VisitAction EnterName(Name name)
-        {
-            return VisitAction.NoAction;
+            return node != null ? node.Accept(this) : null;
         }
 
-        public virtual VisitAction LeaveName(Name name)
+        public virtual INode DefaultVisit(INode node)
         {
-            return VisitAction.NoAction;
+            return null;
         }
 
-        public virtual VisitAction EnterDocument(Document document)
+        public virtual INode VisitName(Name node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction LeaveDocument(Document document)
+        public virtual INode VisitDocument(Document node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction EnterOperationDefinition(OperationDefinition operationDefinition)
+        public virtual INode VisitOperationDefinition(OperationDefinition node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction LeaveOperationDefinition(OperationDefinition operationDefinition)
+        public virtual INode VisitVariableDefinition(VariableDefinition node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction EnterVariableDefinition(VariableDefinition variableDefinition)
+        public virtual INode VisitVariable(Variable node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction LeaveVariableDefinition(VariableDefinition variableDefinition)
+        public virtual INode VisitSelectionSet(SelectionSet node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction EnterVariable(Variable variable)
+        public virtual INode VisitField(Field node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction LeaveVariable(Variable variable)
+        public virtual INode VisitArgument(Argument node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction EnterSelectionSet(SelectionSet selectionSet)
+        public virtual INode VisitFragmentSpread(FragmentSpread node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction LeaveSelectionSet(SelectionSet selectionSet)
+        public virtual INode VisitInlineFragment(InlineFragment node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction EnterField(Field field)
+        public virtual INode VisitFragmentDefinition(FragmentDefinition node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction LeaveField(Field field)
+        public virtual INode VisitIntValue(IntValue node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction EnterArgument(Argument argument)
+        public virtual INode VisitFloatValue(FloatValue node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction LeaveArgument(Argument argument)
+        public virtual INode VisitStringValue(StringValue node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction EnterFragmentSpread(FragmentSpread fragmentSpread)
+        public virtual INode VisitBooleanValue(BooleanValue node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction LeaveFragmentSpread(FragmentSpread fragmentSpread)
+        public virtual INode VisitEnumValue(EnumValue node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction EnterInlineFragment(InlineFragment inlineFragment)
+        public virtual INode VisitArrayValue(ArrayValue node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction LeaveInlineFragment(InlineFragment inlineFragment)
+        public virtual INode VisitObjectValue(ObjectValue node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction EnterFragmentDefinition(FragmentDefinition fragmentDefinition)
+        public virtual INode VisitObjectField(ObjectField node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction LeaveFragmentDefinition(FragmentDefinition fragmentDefinition)
+        public virtual INode VisitDirective(Directive node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction EnterIntValue(IntValue intValue)
+        public virtual INode VisitListType(ListType node)
         {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
 
-        public virtual VisitAction LeaveIntValue(IntValue intValue)
+        public virtual INode VisitNonNullType(NonNullType node)
         {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction EnterFloatValue(FloatValue floatValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction LeaveFloatValue(FloatValue floatValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction EnterStringValue(StringValue stringValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction LeaveStringValue(StringValue stringValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction EnterBooleanValue(BooleanValue booleanValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction LeaveBooleanValue(BooleanValue booleanValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction EnterEnumValue(EnumValue enumValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction LeaveEnumValue(EnumValue enumValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction EnterArrayValue(ArrayValue arrayValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction LeaveArrayValue(ArrayValue arrayValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction EnterObjectValue(ObjectValue objectValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction LeaveObjectValue(ObjectValue objectValue)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction EnterObjectField(ObjectField objectField)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction LeaveObjectField(ObjectField objectField)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction EnterDirective(Directive directive)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction LeaveDirective(Directive directive)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction EnterListType(ListType listType)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction LeaveListType(ListType listType)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction EnterNonNullType(NonNullType nonNullType)
-        {
-            return VisitAction.NoAction;
-        }
-
-        public virtual VisitAction LeaveNonNullType(NonNullType nonNullType)
-        {
-            return VisitAction.NoAction;
+            return DefaultVisit(node);
         }
     }
 
-    public abstract class GenericVisitor : Visitor
+    public class TreeEnterLeaveWalker : Visitor
     {
-        public abstract VisitAction Enter(INode node);
-        public abstract VisitAction Leave(INode node);
+        public void VisitList<T>(ImmutableArray<T> list) where T : INode
+        {
+            if (!list.IsDefault)
+            {
+                for (int i = 0; i < list.Length; i++)
+                {
+                    Visit(list[i]);
+                }
+            }
+        }
 
-        public override VisitAction EnterName(Name name)
+        public override INode VisitName(Name node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitDocument(Document node)
+        {
+            VisitList(node.Definitions);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitOperationDefinition(OperationDefinition node)
+        {
+            VisitList(node.VariableDefinitions);
+            VisitList(node.Directives);
+            Visit(node.SelectionSet);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitVariableDefinition(VariableDefinition node)
+        {
+            Visit(node.Variable);
+            Visit(node.Type);
+            Visit(node.DefaultValue);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitVariable(Variable node)
+        {
+            Visit(node.Name);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitSelectionSet(SelectionSet node)
+        {
+            VisitList(node.Selections);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitField(Field node)
+        {
+            Visit(node.Alias);
+            Visit(node.Name);
+            VisitList(node.Arguments);
+            VisitList(node.Directives);
+            Visit(node.SelectionSet);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitArgument(Argument node)
+        {
+            Visit(node.Name);
+            Visit(node.Value);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitFragmentSpread(FragmentSpread node)
+        {
+            Visit(node.Name);
+            VisitList(node.Directives);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitInlineFragment(InlineFragment node)
+        {
+            Visit(node.TypeCondition);
+            VisitList(node.Directives);
+            Visit(node.SelectionSet);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitFragmentDefinition(FragmentDefinition node)
+        {
+            Visit(node.Name);
+            Visit(node.TypeCondition);
+            VisitList(node.Directives);
+            Visit(node.SelectionSet);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitIntValue(IntValue node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitFloatValue(FloatValue node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitStringValue(StringValue node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitBooleanValue(BooleanValue node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitEnumValue(EnumValue node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitArrayValue(ArrayValue node)
+        {
+            VisitList(node.Values);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitObjectValue(ObjectValue node)
+        {
+            VisitList(node.Fields);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitObjectField(ObjectField node)
+        {
+            Visit(node.Name);
+            Visit(node.Value);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitDirective(Directive node)
+        {
+            Visit(node.Name);
+            Visit(node.Value);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitListType(ListType node)
+        {
+            Visit(node.Type);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitNonNullType(NonNullType node)
+        {
+            Visit(node.Type);
+            return DefaultVisit(node);
+        }
+    }
+
+    public class TreeWalker : Visitor
+    {
+        public void VisitList<T>(ImmutableArray<T> list) where T : INode
+        {
+            if (!list.IsDefault)
+            {
+                for (int i = 0; i < list.Length; i++)
+                {
+                    Visit(list[i]);
+                }
+            }
+        }
+
+        public override INode VisitName(Name node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitDocument(Document node)
+        {
+            VisitList(node.Definitions);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitOperationDefinition(OperationDefinition node)
+        {
+            VisitList(node.VariableDefinitions);
+            VisitList(node.Directives);
+            Visit(node.SelectionSet);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitVariableDefinition(VariableDefinition node)
+        {
+            Visit(node.Variable);
+            Visit(node.Type);
+            Visit(node.DefaultValue);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitVariable(Variable node)
+        {
+            Visit(node.Name);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitSelectionSet(SelectionSet node)
+        {
+            VisitList(node.Selections);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitField(Field node)
+        {
+            Visit(node.Alias);
+            Visit(node.Name);
+            VisitList(node.Arguments);
+            VisitList(node.Directives);
+            Visit(node.SelectionSet);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitArgument(Argument node)
+        {
+            Visit(node.Name);
+            Visit(node.Value);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitFragmentSpread(FragmentSpread node)
+        {
+            Visit(node.Name);
+            VisitList(node.Directives);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitInlineFragment(InlineFragment node)
+        {
+            Visit(node.TypeCondition);
+            VisitList(node.Directives);
+            Visit(node.SelectionSet);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitFragmentDefinition(FragmentDefinition node)
+        {
+            Visit(node.Name);
+            Visit(node.TypeCondition);
+            VisitList(node.Directives);
+            Visit(node.SelectionSet);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitIntValue(IntValue node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitFloatValue(FloatValue node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitStringValue(StringValue node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitBooleanValue(BooleanValue node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitEnumValue(EnumValue node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitArrayValue(ArrayValue node)
+        {
+            VisitList(node.Values);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitObjectValue(ObjectValue node)
+        {
+            VisitList(node.Fields);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitObjectField(ObjectField node)
+        {
+            Visit(node.Name);
+            Visit(node.Value);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitDirective(Directive node)
+        {
+            Visit(node.Name);
+            Visit(node.Value);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitListType(ListType node)
+        {
+            Visit(node.Type);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitNonNullType(NonNullType node)
+        {
+            Visit(node.Type);
+            return DefaultVisit(node);
+        }
+    }
+
+    public abstract class StackWalker : Visitor
+    {
+        private T Visit<T>(T node) where T : class, INode
+        {
+            return base.Visit(node) as T;
+        }
+
+        private T Enter<T>(T node) where T : class, INode
+        {
+            return Enter((INode)node) as T;
+        }
+
+        private T Leave<T>(T node) where T : class, INode
+        {
+            return Leave((INode)node) as T;
+        }
+
+        public ImmutableArray<T> VisitList<T>(ImmutableArray<T> list) where T : class, INode
+        {
+            if (list.IsDefault)
+            {
+                return list;
+            }
+
+            return DoVisitList(list);
+        }
+
+        private ImmutableArray<T> DoVisitList<T>(ImmutableArray<T> list) where T : class, INode
+        {
+            ArrayBuilder<T> newList = null;
+            for (int i = 0; i < list.Length; i++)
+            {
+                var item = list[i];
+                Debug.Assert(item != null);
+
+                var visited = Visit(item);
+                if (item != visited)
+                {
+                    if (newList == null)
+                    {
+                        newList = ArrayBuilder<T>.GetInstance();
+                        if (i > 0)
+                        {
+                            newList.AddRange(list, i);
+                        }
+                    }
+                }
+
+                if (newList != null && visited != null)
+                {
+                    newList.Add(visited);
+                }
+            }
+
+            if (newList != null)
+            {
+                return newList.ToImmutableAndFree();
+            }
+
+            return list;
+        }
+
+        public override INode VisitName(Name node)
+        {
+            var updatedNode = EnterName(node);
+            if (updatedNode == null) return null;
+            updatedNode = LeaveName(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitDocument(Document node)
+        {
+            var updatedNode = EnterDocument(node);
+            if (updatedNode == null) return null;
+            var definitions = VisitList(updatedNode.Definitions);
+            updatedNode = updatedNode.Update(definitions);
+            updatedNode = LeaveDocument(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitOperationDefinition(OperationDefinition node)
+        {
+            var updatedNode = EnterOperationDefinition(node);
+            if (updatedNode == null) return null;
+            var name = Visit(updatedNode.Name);
+            var variableDefinitions = VisitList(updatedNode.VariableDefinitions);
+            var directives = VisitList(updatedNode.Directives);
+            var selectionSet = Visit(updatedNode.SelectionSet);
+            updatedNode = updatedNode.Update(node.Operation, name, variableDefinitions, directives, selectionSet);
+            updatedNode = LeaveOperationDefinition(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitVariableDefinition(VariableDefinition node)
+        {
+            var updatedNode = EnterVariableDefinition(node);
+            if (updatedNode == null) return null;
+            var variable = Visit(updatedNode.Variable);
+            var type = Visit(updatedNode.Type);
+            var defaultValue = Visit(updatedNode.DefaultValue);
+            updatedNode = updatedNode.Update(variable, type, defaultValue);
+            updatedNode = LeaveVariableDefinition(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitVariable(Variable node)
+        {
+            var updatedNode = EnterVariable(node);
+            if (updatedNode == null) return null;
+            var name = Visit(updatedNode.Name);
+            updatedNode = updatedNode.Update(name);
+            updatedNode = LeaveVariable(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitSelectionSet(SelectionSet node)
+        {
+            var updatedNode = EnterSelectionSet(node);
+            if (updatedNode == null) return null;
+            var selections = VisitList(updatedNode.Selections);
+            updatedNode = updatedNode.Update(selections);
+            updatedNode = LeaveSelectionSet(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitField(Field node)
+        {
+            var updatedNode = EnterField(node);
+            if (updatedNode == null) return null;
+            var alias = Visit(updatedNode.Alias);
+            var name = Visit(updatedNode.Name);
+            var arguments = VisitList(updatedNode.Arguments);
+            var directives = VisitList(updatedNode.Directives);
+            var selectionSet = Visit(updatedNode.SelectionSet);
+            updatedNode = updatedNode.Update(alias, name, arguments, directives, selectionSet);
+            updatedNode = LeaveField(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitArgument(Argument node)
+        {
+            var updatedNode = EnterArgument(node);
+            if (updatedNode == null) return null;
+            var name = Visit(updatedNode.Name);
+            var value = Visit(updatedNode.Value);
+            updatedNode = updatedNode.Update(name, value);
+            updatedNode = LeaveArgument(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitFragmentSpread(FragmentSpread node)
+        {
+            var updatedNode = EnterFragmentSpread(node);
+            if (updatedNode == null) return null;
+            var name = Visit(updatedNode.Name);
+            var directives = VisitList(updatedNode.Directives);
+            updatedNode = updatedNode.Update(name, directives);
+            updatedNode = LeaveFragmentSpread(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitInlineFragment(InlineFragment node)
+        {
+            var updatedNode = EnterInlineFragment(node);
+            if (updatedNode == null) return null;
+            var typeCondition = Visit(updatedNode.TypeCondition);
+            var directives = VisitList(updatedNode.Directives);
+            var selectionSet = Visit(updatedNode.SelectionSet);
+            updatedNode = updatedNode.Update(typeCondition, directives, selectionSet);
+            updatedNode = LeaveInlineFragment(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitFragmentDefinition(FragmentDefinition node)
+        {
+            var updatedNode = EnterFragmentDefinition(node);
+            if (updatedNode == null) return null;
+            var name = Visit(updatedNode.Name);
+            var typeCondition = Visit(updatedNode.TypeCondition);
+            var directives = VisitList(updatedNode.Directives);
+            var selectionSet = Visit(updatedNode.SelectionSet);
+            updatedNode = updatedNode.Update(name, typeCondition, directives, selectionSet);
+            updatedNode = LeaveFragmentDefinition(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitIntValue(IntValue node)
+        {
+            var updatedNode = EnterIntValue(node);
+            if (updatedNode == null) return null;
+            updatedNode = LeaveIntValue(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitFloatValue(FloatValue node)
+        {
+            var updatedNode = EnterFloatValue(node);
+            if (updatedNode == null) return null;
+            updatedNode = LeaveFloatValue(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitStringValue(StringValue node)
+        {
+            var updatedNode = EnterStringValue(node);
+            if (updatedNode == null) return null;
+            updatedNode = LeaveStringValue(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitBooleanValue(BooleanValue node)
+        {
+            var updatedNode = EnterBooleanValue(node);
+            if (updatedNode == null) return null;
+            updatedNode = LeaveBooleanValue(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitEnumValue(EnumValue node)
+        {
+            var updatedNode = EnterEnumValue(node);
+            if (updatedNode == null) return null;
+            updatedNode = LeaveEnumValue(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitArrayValue(ArrayValue node)
+        {
+            var updatedNode = EnterArrayValue(node);
+            if (updatedNode == null) return null;
+            var values = VisitList(updatedNode.Values);
+            updatedNode = updatedNode.Update(values);
+            updatedNode = LeaveArrayValue(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitObjectValue(ObjectValue node)
+        {
+            var updatedNode = EnterObjectValue(node);
+            if (updatedNode == null) return null;
+            var fields = VisitList(updatedNode.Fields);
+            updatedNode = updatedNode.Update(fields);
+            updatedNode = LeaveObjectValue(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitObjectField(ObjectField node)
+        {
+            var updatedNode = EnterObjectField(node);
+            if (updatedNode == null) return null;
+            var name = Visit(updatedNode.Name);
+            var value = Visit(updatedNode.Value);
+            updatedNode = updatedNode.Update(name, value);
+            updatedNode = LeaveObjectField(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitDirective(Directive node)
+        {
+            var updatedNode = EnterDirective(node);
+            if (updatedNode == null) return null;
+            var name = Visit(updatedNode.Name);
+            var value = Visit(updatedNode.Value);
+            updatedNode = updatedNode.Update(name, value);
+            updatedNode = LeaveDirective(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitListType(ListType node)
+        {
+            var updatedNode = EnterListType(node);
+            if (updatedNode == null) return null;
+            var type = Visit(updatedNode.Type);
+            updatedNode = updatedNode.Update(type);
+            updatedNode = LeaveListType(updatedNode);
+            return updatedNode;
+        }
+
+        public override INode VisitNonNullType(NonNullType node)
+        {
+            var updatedNode = EnterNonNullType(node);
+            if (updatedNode == null) return null;
+            var type = Visit(updatedNode.Type);
+            updatedNode = updatedNode.Update(type);
+            updatedNode = LeaveNonNullType(updatedNode);
+            return updatedNode;
+        }
+
+        public virtual INode Enter(INode node)
+        {
+            return node;
+        }
+
+        public virtual INode Leave(INode node)
+        {
+            return node;
+        }
+
+        public virtual Name EnterName(Name name)
         {
             return Enter(name);
         }
 
-        public override VisitAction LeaveName(Name name)
+        public virtual Name LeaveName(Name name)
         {
             return Leave(name);
         }
 
-        public override VisitAction EnterDocument(Document document)
+        public virtual Document EnterDocument(Document document)
         {
             return Enter(document);
         }
 
-        public override VisitAction LeaveDocument(Document document)
+        public virtual Document LeaveDocument(Document document)
         {
             return Leave(document);
         }
 
-        public override VisitAction EnterOperationDefinition(OperationDefinition operationDefinition)
+        public virtual OperationDefinition EnterOperationDefinition(OperationDefinition operationDefinition)
         {
             return Enter(operationDefinition);
         }
 
-        public override VisitAction LeaveOperationDefinition(OperationDefinition operationDefinition)
+        public virtual OperationDefinition LeaveOperationDefinition(OperationDefinition operationDefinition)
         {
             return Leave(operationDefinition);
         }
 
-        public override VisitAction EnterVariableDefinition(VariableDefinition variableDefinition)
+        public virtual VariableDefinition EnterVariableDefinition(VariableDefinition variableDefinition)
         {
             return Enter(variableDefinition);
         }
 
-        public override VisitAction LeaveVariableDefinition(VariableDefinition variableDefinition)
+        public virtual VariableDefinition LeaveVariableDefinition(VariableDefinition variableDefinition)
         {
             return Leave(variableDefinition);
         }
 
-        public override VisitAction EnterVariable(Variable variable)
+        public virtual Variable EnterVariable(Variable variable)
         {
             return Enter(variable);
         }
 
-        public override VisitAction LeaveVariable(Variable variable)
+        public virtual Variable LeaveVariable(Variable variable)
         {
             return Leave(variable);
         }
 
-        public override VisitAction EnterSelectionSet(SelectionSet selectionSet)
+        public virtual SelectionSet EnterSelectionSet(SelectionSet selectionSet)
         {
             return Enter(selectionSet);
         }
 
-        public override VisitAction LeaveSelectionSet(SelectionSet selectionSet)
+        public virtual SelectionSet LeaveSelectionSet(SelectionSet selectionSet)
         {
             return Leave(selectionSet);
         }
 
-        public override VisitAction EnterField(Field field)
+        public virtual Field EnterField(Field field)
         {
             return Enter(field);
         }
 
-        public override VisitAction LeaveField(Field field)
+        public virtual Field LeaveField(Field field)
         {
             return Leave(field);
         }
 
-        public override VisitAction EnterArgument(Argument argument)
+        public virtual Argument EnterArgument(Argument argument)
         {
             return Enter(argument);
         }
 
-        public override VisitAction LeaveArgument(Argument argument)
+        public virtual Argument LeaveArgument(Argument argument)
         {
             return Leave(argument);
         }
 
-        public override VisitAction EnterFragmentSpread(FragmentSpread fragmentSpread)
+        public virtual FragmentSpread EnterFragmentSpread(FragmentSpread fragmentSpread)
         {
             return Enter(fragmentSpread);
         }
 
-        public override VisitAction LeaveFragmentSpread(FragmentSpread fragmentSpread)
+        public virtual FragmentSpread LeaveFragmentSpread(FragmentSpread fragmentSpread)
         {
             return Leave(fragmentSpread);
         }
 
-        public override VisitAction EnterInlineFragment(InlineFragment inlineFragment)
+        public virtual InlineFragment EnterInlineFragment(InlineFragment inlineFragment)
         {
             return Enter(inlineFragment);
         }
 
-        public override VisitAction LeaveInlineFragment(InlineFragment inlineFragment)
+        public virtual InlineFragment LeaveInlineFragment(InlineFragment inlineFragment)
         {
             return Leave(inlineFragment);
         }
 
-        public override VisitAction EnterFragmentDefinition(FragmentDefinition fragmentDefinition)
+        public virtual FragmentDefinition EnterFragmentDefinition(FragmentDefinition fragmentDefinition)
         {
             return Enter(fragmentDefinition);
         }
 
-        public override VisitAction LeaveFragmentDefinition(FragmentDefinition fragmentDefinition)
+        public virtual FragmentDefinition LeaveFragmentDefinition(FragmentDefinition fragmentDefinition)
         {
             return Leave(fragmentDefinition);
         }
 
-        public override VisitAction EnterIntValue(IntValue intValue)
+        public virtual IntValue EnterIntValue(IntValue intValue)
         {
             return Enter(intValue);
         }
 
-        public override VisitAction LeaveIntValue(IntValue intValue)
+        public virtual IntValue LeaveIntValue(IntValue intValue)
         {
             return Leave(intValue);
         }
 
-        public override VisitAction EnterFloatValue(FloatValue floatValue)
+        public virtual FloatValue EnterFloatValue(FloatValue floatValue)
         {
             return Enter(floatValue);
         }
 
-        public override VisitAction LeaveFloatValue(FloatValue floatValue)
+        public virtual FloatValue LeaveFloatValue(FloatValue floatValue)
         {
             return Leave(floatValue);
         }
 
-        public override VisitAction EnterStringValue(StringValue stringValue)
+        public virtual StringValue EnterStringValue(StringValue stringValue)
         {
             return Enter(stringValue);
         }
 
-        public override VisitAction LeaveStringValue(StringValue stringValue)
+        public virtual StringValue LeaveStringValue(StringValue stringValue)
         {
             return Leave(stringValue);
         }
 
-        public override VisitAction EnterBooleanValue(BooleanValue booleanValue)
+        public virtual BooleanValue EnterBooleanValue(BooleanValue booleanValue)
         {
             return Enter(booleanValue);
         }
 
-        public override VisitAction LeaveBooleanValue(BooleanValue booleanValue)
+        public virtual BooleanValue LeaveBooleanValue(BooleanValue booleanValue)
         {
             return Leave(booleanValue);
         }
 
-        public override VisitAction EnterEnumValue(EnumValue enumValue)
+        public virtual EnumValue EnterEnumValue(EnumValue enumValue)
         {
             return Enter(enumValue);
         }
 
-        public override VisitAction LeaveEnumValue(EnumValue enumValue)
+        public virtual EnumValue LeaveEnumValue(EnumValue enumValue)
         {
             return Leave(enumValue);
         }
 
-        public override VisitAction EnterArrayValue(ArrayValue arrayValue)
+        public virtual ArrayValue EnterArrayValue(ArrayValue arrayValue)
         {
             return Enter(arrayValue);
         }
 
-        public override VisitAction LeaveArrayValue(ArrayValue arrayValue)
+        public virtual ArrayValue LeaveArrayValue(ArrayValue arrayValue)
         {
             return Leave(arrayValue);
         }
 
-        public override VisitAction EnterObjectValue(ObjectValue objectValue)
+        public virtual ObjectValue EnterObjectValue(ObjectValue objectValue)
         {
             return Enter(objectValue);
         }
 
-        public override VisitAction LeaveObjectValue(ObjectValue objectValue)
+        public virtual ObjectValue LeaveObjectValue(ObjectValue objectValue)
         {
             return Leave(objectValue);
         }
 
-        public override VisitAction EnterObjectField(ObjectField objectField)
+        public virtual ObjectField EnterObjectField(ObjectField objectField)
         {
             return Enter(objectField);
         }
 
-        public override VisitAction LeaveObjectField(ObjectField objectField)
+        public virtual ObjectField LeaveObjectField(ObjectField objectField)
         {
             return Leave(objectField);
         }
 
-        public override VisitAction EnterDirective(Directive directive)
+        public virtual Directive EnterDirective(Directive directive)
         {
             return Enter(directive);
         }
 
-        public override VisitAction LeaveDirective(Directive directive)
+        public virtual Directive LeaveDirective(Directive directive)
         {
             return Leave(directive);
         }
 
-        public override VisitAction EnterListType(ListType listType)
+        public virtual ListType EnterListType(ListType listType)
         {
             return Enter(listType);
         }
 
-        public override VisitAction LeaveListType(ListType listType)
+        public virtual ListType LeaveListType(ListType listType)
         {
             return Leave(listType);
         }
 
-        public override VisitAction EnterNonNullType(NonNullType nonNullType)
+        public virtual NonNullType EnterNonNullType(NonNullType nonNullType)
         {
             return Enter(nonNullType);
         }
 
-        public override VisitAction LeaveNonNullType(NonNullType nonNullType)
+        public virtual NonNullType LeaveNonNullType(NonNullType nonNullType)
         {
             return Leave(nonNullType);
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -212,14 +213,14 @@ namespace GraphQLSharp.Language
         /// <param name="parseFn">The parse function.</param>
         /// <param name="closeKind">Kind of the close.</param>
         /// <returns></returns>
-        public List<T> Any<T>(TokenKind openKind, Func<T> parseFn, TokenKind closeKind)
+        public ImmutableArray<T> Any<T>(TokenKind openKind, Func<T> parseFn, TokenKind closeKind)
         {
             Expect(openKind);
-            var nodes = new List<T>();
+            var nodes = ImmutableArray<T>.Empty;
             // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
             while (!Skip(closeKind))
             {
-                nodes.Add(parseFn());
+                nodes = nodes.Add(parseFn());
             }
             return nodes;
         }
@@ -235,14 +236,14 @@ namespace GraphQLSharp.Language
         /// <param name="parseFn">The parse function.</param>
         /// <param name="closeKind">Kind of the close.</param>
         /// <returns></returns>
-        public List<T> Many<T>(TokenKind openKind, Func<T> parseFn, TokenKind closeKind)
+        public ImmutableArray<T> Many<T>(TokenKind openKind, Func<T> parseFn, TokenKind closeKind)
         {
             Expect(openKind);
-            var nodes = new List<T>{parseFn()};
+            var nodes = ImmutableArray.Create(parseFn());
             // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
             while (!Skip(closeKind))
             {
-                nodes.Add(parseFn());
+                nodes = nodes.Add(parseFn());
             }
             return nodes;
         }
@@ -266,21 +267,21 @@ namespace GraphQLSharp.Language
         public Document ParseDocument()
         {
             var start = this.Token.Start;
-            var definitions = new List<IDefinition>();
+            var definitions = ImmutableArray<IDefinition>.Empty;
             do
             {
                 if (Peek(TokenKind.BRACE_L))
                 {
-                    definitions.Add(ParseOperationDefinition());
+                    definitions = definitions.Add(ParseOperationDefinition());
                 } else if (Peek(TokenKind.NAME))
                 {
                     if (this.Token.Value == "query" || this.Token.Value == "mutation")
                     {
-                        definitions.Add(ParseOperationDefinition());
+                        definitions = definitions.Add(ParseOperationDefinition());
                     }
                     else if (this.Token.Value == "fragment")
                     {
-                        definitions.Add(ParseFragmentDefinition());
+                        definitions = definitions.Add(ParseFragmentDefinition());
                     }
                     else
                     {
@@ -310,8 +311,8 @@ namespace GraphQLSharp.Language
                 {
                     Operation = OperationType.Query,
                     Name = null,
-                    VariableDefinitions = null,
-                    Directives = new List<Directive>(),
+                    VariableDefinitions = ImmutableArray<VariableDefinition>.Empty,
+                    Directives = ImmutableArray<Directive>.Empty,
                     SelectionSet = ParseSelectionSet(),
                     Location = GetLocation(start),
                 };
@@ -340,7 +341,7 @@ namespace GraphQLSharp.Language
             };
         }
 
-        public List<VariableDefinition> ParseVariableDefinitions()
+        public ImmutableArray<VariableDefinition> ParseVariableDefinitions()
         {
             if (Peek(TokenKind.PAREN_L))
             {
@@ -348,7 +349,7 @@ namespace GraphQLSharp.Language
             }
             else
             {
-                return new List<VariableDefinition>();
+                return ImmutableArray<VariableDefinition>.Empty;
             }
         }
 
@@ -432,7 +433,7 @@ namespace GraphQLSharp.Language
             };
         }
 
-        private List<Argument> ParseArguments()
+        private ImmutableArray<Argument> ParseArguments()
         {
             if (Peek(TokenKind.PAREN_L))
             {
@@ -440,7 +441,7 @@ namespace GraphQLSharp.Language
             }
             else
             {
-                return new List<Argument>();
+                return ImmutableArray<Argument>.Empty;
             }
         }
 
@@ -593,10 +594,10 @@ namespace GraphQLSharp.Language
             var start = Token.Start;
             Expect(TokenKind.BRACE_L);
             var fieldNames = new Dictionary<String, bool>();
-            var fields = new List<ObjectField>();
+            var fields = ImmutableArray<ObjectField>.Empty;
             while (!Skip(TokenKind.BRACE_R))
             {
-                fields.Add(ParseObjectField(isConst, fieldNames));
+                fields = fields.Add(ParseObjectField(isConst, fieldNames));
             }
             return new ObjectValue
             {
@@ -628,12 +629,12 @@ namespace GraphQLSharp.Language
 
         // Implements the parsing rules in the Directives section.
 
-        private List<Directive> ParseDirectives()
+        private ImmutableArray<Directive> ParseDirectives()
         {
-            var directives = new List<Directive>();
+            var directives = ImmutableArray<Directive>.Empty;
             while (Peek(TokenKind.AT))
             {
-                directives.Add(ParseDirective());
+                directives = directives.Add(ParseDirective());
             }
             return directives;
         }
