@@ -210,12 +210,18 @@ namespace GraphQLSharp.Test.Language
 
         public class VisitedNodes : StackWalker
         {
+            private readonly Func<INode, INode> _enter;
             public ImmutableArray<Tuple<bool, NodeType, object>> Visited = ImmutableArray<Tuple<bool, NodeType, object>>.Empty;
+
+            public VisitedNodes(Func<INode, INode> enter)
+            {
+                _enter = enter;
+            }
 
             public override INode Enter(INode node)
             {
                 AddVisited(node, true);
-                return (node is Field && (node as Field).Name.Value == "b") ? null : node;
+                return _enter(node);
             }
 
             private void AddVisited(INode node, bool isEnter)
@@ -243,7 +249,7 @@ namespace GraphQLSharp.Test.Language
             {
                 NoLocation = true,
             });
-            var visitor = new VisitedNodes();
+            var visitor = new VisitedNodes(node => (node is Field && (node as Field).Name.Value == "b") ? null : node);
             visitor.Visit(ast);
             visitor.Visited.ShouldBeEquivalentTo(ImmutableArray.Create(
                 Tuple.Create(true, NodeType.Document, (object)null),
@@ -261,8 +267,40 @@ namespace GraphQLSharp.Test.Language
                 Tuple.Create(false, NodeType.SelectionSet, (object)null),
                 Tuple.Create(false, NodeType.OperationDefinition, (object)null),
                 Tuple.Create(false, NodeType.Document, (object)null)
-                ));
+            ));
         }
-    
+
+        [Fact(DisplayName = "allows early exit while visiting")]
+        public void AllowsEarlyExitWhileVisiting()
+        {
+            var ast = Parser.Parse("{ a, b { x }, c }", new ParseOptions
+            {
+                NoLocation = true,
+            });
+            var visitor = new VisitedNodes(node =>
+            {
+                if (node is Name && (node as Name).Value == "x")
+                {
+                    throw new Visitor.BreakException();
+                }
+                return node;
+            });
+            visitor.VisitWithBreak(ast);
+            visitor.Visited.ShouldBeEquivalentTo(ImmutableArray.Create(
+                Tuple.Create(true, NodeType.Document, (object)null),
+                Tuple.Create(true, NodeType.OperationDefinition, (object)null),
+                Tuple.Create(true, NodeType.SelectionSet, (object)null),
+                Tuple.Create(true, NodeType.Field, (object)null),
+                Tuple.Create(true, NodeType.Name, (object)"a"),
+                Tuple.Create(false, NodeType.Name, (object)"a"),
+                Tuple.Create(false, NodeType.Field, (object)null),
+                Tuple.Create(true, NodeType.Field, (object)null),
+                Tuple.Create(true, NodeType.Name, (object)"b"),
+                Tuple.Create(false, NodeType.Name, (object)"b"),
+                Tuple.Create(true, NodeType.SelectionSet, (object)null),
+                Tuple.Create(true, NodeType.Field, (object)null),
+                Tuple.Create(true, NodeType.Name, (object)"x")
+            ));
+        }
     }
 }

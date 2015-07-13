@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using GraphQLSharp.ImmutableUtils;
 
@@ -6,9 +7,25 @@ namespace GraphQLSharp.Language
 {
     public abstract class Visitor
     {
+        public class BreakException : Exception
+        {
+        }
+
         public virtual INode Visit(INode node)
         {
             return node != null ? node.Accept(this) : null;
+        }
+
+        public virtual INode VisitWithBreak(INode node)
+        {
+            try
+            {
+                return Visit(node);
+            }
+            catch (BreakException)
+            {
+                return null;
+            }
         }
 
         public virtual INode DefaultVisit(INode node)
