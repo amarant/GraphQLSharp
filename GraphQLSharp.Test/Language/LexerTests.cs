@@ -12,7 +12,7 @@ namespace GraphQLSharp.Test.Language
         {
             (new Lexer(new Source(body)))
                 .NextToken(null)
-                .ShouldBeEquivalentTo(new Token(kind, start, end, value));
+                .ShouldBeEquivalentToDeepDynamic(new Token(kind, start, end, value));
         }
 
         private static void LexErr(String body, String message)

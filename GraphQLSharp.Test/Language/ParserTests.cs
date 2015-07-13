@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Reflection;
 using FluentAssertions;
@@ -95,23 +96,21 @@ fragment MissingOn Type
         {
             var source = new Source("{\n  node(id: 4) {\n    id,\n    name\n  }\n}\n");
             var result = Parser.Parse(source);
-            result.ShouldBeEquivalentTo(new Document
+            result.ShouldBeEquivalentToDeepDynamic(new Document
             {
                 Location = new Location(0, 41, source),
-                Definitions = new List<IDefinition>
-                {
+                Definitions = ImmutableArray.Create<IDefinition>(
                     new OperationDefinition
                     {
                         Location = new Location(0, 40, source),
                         Operation = OperationType.Query,
                         Name = null,
-                        VariableDefinitions = null,
-                        Directives = new List<Directive>(),
+                        VariableDefinitions = ImmutableArray<VariableDefinition>.Empty,
+                        Directives = ImmutableArray<Directive>.Empty,
                         SelectionSet = new SelectionSet
                         {
                             Location = new Location(0, 40, source),
-                            Selections = new List<ISelection>
-                            {
+                            Selections = ImmutableArray.Create<ISelection>(
                                 new Field
                                 {
                                     Location = new Location(4, 38, source),
@@ -121,8 +120,7 @@ fragment MissingOn Type
                                         Location = new Location(4, 8, source),
                                         Value = "node",
                                     },
-                                    Arguments = new List<Argument>
-                                    {
+                                    Arguments = ImmutableArray.Create(
                                         new Argument
                                         {
                                             Name = new Name
@@ -136,14 +134,13 @@ fragment MissingOn Type
                                                 Value = "4",
                                             },
                                             Location = new Location(9, 14, source),
-                                        },
-                                    },
-                                    Directives = new List<Directive>(),
+                                        }
+                                    ),
+                                    Directives = ImmutableArray<Directive>.Empty,
                                     SelectionSet = new SelectionSet
                                     {
                                         Location = new Location(16, 38, source),
-                                        Selections = new List<ISelection>
-                                        {
+                                        Selections = ImmutableArray.Create<ISelection>(
                                             new Field
                                             {
                                                 Location = new Location(22, 24, source),
@@ -153,8 +150,8 @@ fragment MissingOn Type
                                                     Location = new Location(22, 24, source),
                                                     Value = "id",
                                                 },
-                                                Arguments = new List<Argument>(),
-                                                Directives = new List<Directive>(),
+                                                Arguments = ImmutableArray<Argument>.Empty,
+                                                Directives = ImmutableArray<Directive>.Empty,
                                                 SelectionSet = null,
                                             },
                                             new Field
@@ -166,20 +163,18 @@ fragment MissingOn Type
                                                     Location = new Location(30, 34, source),
                                                     Value = "name",
                                                 },
-                                                Arguments = new List<Argument>(),
-                                                Directives = new List<Directive>(),
+                                                Arguments = ImmutableArray<Argument>.Empty,
+                                                Directives = ImmutableArray<Directive>.Empty,
                                                 SelectionSet = null,
                                             }
-                                        }
+                                        )
                                     }
                                 }
-                            }
+                            )
                         }
                     }
-                }
-                
+                )
             });
-            
         }
     }
 }
