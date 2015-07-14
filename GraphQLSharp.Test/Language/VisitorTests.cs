@@ -302,5 +302,49 @@ namespace GraphQLSharp.Test.Language
                 Tuple.Create(true, NodeType.Name, (object)"x")
             ));
         }
+
+        public class NodeTypeVisitor : StackWalker
+        {
+            public ImmutableArray<Tuple<bool, NodeType, object>> Visited = ImmutableArray<Tuple<bool, NodeType, object>>.Empty;
+
+            public override Name EnterName(Name name)
+            {
+                Visited = Visited.Add(Tuple.Create(true, name.Kind, (object)name.Value));
+                return name;
+            }
+
+            public override SelectionSet EnterSelectionSet(SelectionSet selectionSet)
+            {
+                Visited = Visited.Add(Tuple.Create(true, selectionSet.Kind, (object)null));
+                return selectionSet;
+            }
+
+            public override SelectionSet LeaveSelectionSet(SelectionSet selectionSet)
+            {
+                Visited = Visited.Add(Tuple.Create(false, selectionSet.Kind, (object)null));
+                return selectionSet;
+            }
+        }
+
+        [Fact(DisplayName = "allows a named functions visitor API")]
+        public void AllowsANamedFunctionsVisitorApi()
+        {
+            var ast = Parser.Parse("{ a, b { x }, c }", new ParseOptions
+            {
+                NoLocation = true,
+            });
+            var visitor = new NodeTypeVisitor();
+            visitor.Visit(ast);
+            visitor.Visited.ShouldBeEquivalentTo(ImmutableArray.Create(
+                Tuple.Create(true, NodeType.SelectionSet, (object)null),
+                Tuple.Create(true, NodeType.Name, (object)"a"),
+                Tuple.Create(true, NodeType.Name, (object)"b"),
+                Tuple.Create(true, NodeType.SelectionSet, (object)null),
+                Tuple.Create(true, NodeType.Name, (object)"x"),
+                Tuple.Create(false, NodeType.SelectionSet, (object)null),
+                Tuple.Create(true, NodeType.Name, (object)"c"),
+                Tuple.Create(false, NodeType.SelectionSet, (object)null)
+            ));
+        }
     }
 }
