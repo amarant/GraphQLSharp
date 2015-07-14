@@ -715,8 +715,8 @@ namespace GraphQLSharp.Language
             var updatedNode = EnterDirective(node);
             if (updatedNode == null) return null;
             var name = Visit(updatedNode.Name);
-            var value = Visit(updatedNode.Value);
-            updatedNode = updatedNode.Update(name, value);
+            var arguments = VisitList(updatedNode.Arguments);
+            updatedNode = updatedNode.Update(name, arguments);
             updatedNode = LeaveDirective(updatedNode);
             return updatedNode;
         }

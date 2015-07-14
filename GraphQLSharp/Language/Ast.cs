@@ -616,22 +616,22 @@ namespace GraphQLSharp.Language
             get { return NodeType.Directive; }
         }
         public Name Name { get; set; }
-        public IValue Value { get; set; }
+        public ImmutableArray<Argument> Arguments { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
            return  visitor.VisitDirective(this);
         }
 
-        public Directive Update(Name name, IValue value)
+        public Directive Update(Name name, ImmutableArray<Argument> arguments)
         {
             if (Name != name ||
-                Value != value)
+                Arguments != arguments)
             {
                 return new Directive
                 {
                     Name = name,
-                    Value = value,
+                    Arguments = arguments,
                 };
             }
             return this;

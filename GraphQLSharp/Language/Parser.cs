@@ -646,7 +646,7 @@ namespace GraphQLSharp.Language
             return new Directive
             {
                 Name = ParseName(),
-                Value = Skip(TokenKind.COLON) ? ParseValue(false) : null,
+                Arguments = ParseArguments(),
                 Location = GetLocation(start),
             };
         }
