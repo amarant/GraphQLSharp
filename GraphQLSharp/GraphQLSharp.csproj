@@ -52,6 +52,7 @@
     <Compile Include="Language\Location.cs" />
     <Compile Include="Language\Error.cs" />
     <Compile Include="Language\Parser.cs" />
+    <Compile Include="Language\Printer.cs" />
     <Compile Include="Language\Source.cs" />
     <Compile Include="Language\Visitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
