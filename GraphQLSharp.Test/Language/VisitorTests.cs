@@ -18,7 +18,7 @@ namespace GraphQLSharp.Test.Language
         }
 
 
-        public class ToStringVisitor : TreeWalker
+        public class ToStringVisitor : Walker
         {
             private readonly ITestOutputHelper _output;
 
@@ -34,7 +34,7 @@ namespace GraphQLSharp.Test.Language
             }
         }
 
-        public class ToStringStackWalker : StackWalker
+        public class ToStringStackWalker : Rewriter
         {
             private readonly ITestOutputHelper _output;
 
@@ -75,7 +75,7 @@ namespace GraphQLSharp.Test.Language
             result.Should().Be(visited);
         }
 
-        public class AllowsForEditingOnEnterStackWalker : StackWalker
+        public class AllowsForEditingOnEnterStackWalker : Rewriter
         {
             public override Field EnterField(Field field)
             {
@@ -117,7 +117,7 @@ namespace GraphQLSharp.Test.Language
             action.ShouldThrow<Exception>();
         }
 
-        public class AllowsForEditingOnLeaveStackWalker : StackWalker
+        public class AllowsForEditingOnLeaveStackWalker : Rewriter
         {
             public override Field LeaveField(Field field)
             {
@@ -159,7 +159,7 @@ namespace GraphQLSharp.Test.Language
             action.ShouldThrow<Exception>();
         }
 
-        public class AddField : StackWalker
+        public class AddField : Rewriter
         {
             public static Field AddedField = new Field
             {
@@ -208,7 +208,7 @@ namespace GraphQLSharp.Test.Language
             visitor.DidVisitAddedField.Should().BeTrue();
         }
 
-        public class VisitedNodes : StackWalker
+        public class VisitedNodes : Rewriter
         {
             private readonly Func<INode, INode> _enter;
             public ImmutableArray<Tuple<bool, NodeType, object>> Visited = ImmutableArray<Tuple<bool, NodeType, object>>.Empty;
@@ -281,7 +281,7 @@ namespace GraphQLSharp.Test.Language
             {
                 if (node is Name && (node as Name).Value == "x")
                 {
-                    throw new Visitor.BreakException();
+                    throw new Visitor<INode>.BreakException();
                 }
                 return node;
             });
@@ -303,7 +303,7 @@ namespace GraphQLSharp.Test.Language
             ));
         }
 
-        public class NodeTypeVisitor : StackWalker
+        public class NodeTypeVisitor : Rewriter
         {
             public ImmutableArray<Tuple<bool, NodeType, object>> Visited = ImmutableArray<Tuple<bool, NodeType, object>>.Empty;
 

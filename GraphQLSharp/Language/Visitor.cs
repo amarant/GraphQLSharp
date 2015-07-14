@@ -5,18 +5,18 @@ using GraphQLSharp.ImmutableUtils;
 
 namespace GraphQLSharp.Language
 {
-    public abstract class Visitor
+    public abstract class Visitor<TResult>
     {
         public class BreakException : Exception
         {
         }
 
-        public virtual INode Visit(INode node)
+        public virtual TResult Visit(INode node)
         {
-            return node != null ? node.Accept(this) : null;
+            return node != null ? node.Accept(this) : default(TResult);
         }
 
-        public virtual INode VisitWithBreak(INode node)
+        public virtual TResult VisitWithBreak(INode node)
         {
             try
             {
@@ -24,127 +24,127 @@ namespace GraphQLSharp.Language
             }
             catch (BreakException)
             {
-                return null;
+                return default(TResult);
             }
         }
 
-        public virtual INode DefaultVisit(INode node)
+        public virtual TResult DefaultVisit(INode node)
         {
-            return null;
+            return default(TResult);
         }
 
-        public virtual INode VisitName(Name node)
-        {
-            return DefaultVisit(node);
-        }
-
-        public virtual INode VisitDocument(Document node)
+        public virtual TResult VisitName(Name node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitOperationDefinition(OperationDefinition node)
+        public virtual TResult VisitDocument(Document node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitVariableDefinition(VariableDefinition node)
+        public virtual TResult VisitOperationDefinition(OperationDefinition node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitVariable(Variable node)
+        public virtual TResult VisitVariableDefinition(VariableDefinition node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitSelectionSet(SelectionSet node)
+        public virtual TResult VisitVariable(Variable node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitField(Field node)
+        public virtual TResult VisitSelectionSet(SelectionSet node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitArgument(Argument node)
+        public virtual TResult VisitField(Field node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitFragmentSpread(FragmentSpread node)
+        public virtual TResult VisitArgument(Argument node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitInlineFragment(InlineFragment node)
+        public virtual TResult VisitFragmentSpread(FragmentSpread node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitFragmentDefinition(FragmentDefinition node)
+        public virtual TResult VisitInlineFragment(InlineFragment node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitIntValue(IntValue node)
+        public virtual TResult VisitFragmentDefinition(FragmentDefinition node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitFloatValue(FloatValue node)
+        public virtual TResult VisitIntValue(IntValue node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitStringValue(StringValue node)
+        public virtual TResult VisitFloatValue(FloatValue node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitBooleanValue(BooleanValue node)
+        public virtual TResult VisitStringValue(StringValue node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitEnumValue(EnumValue node)
+        public virtual TResult VisitBooleanValue(BooleanValue node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitArrayValue(ArrayValue node)
+        public virtual TResult VisitEnumValue(EnumValue node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitObjectValue(ObjectValue node)
+        public virtual TResult VisitArrayValue(ArrayValue node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitObjectField(ObjectField node)
+        public virtual TResult VisitObjectValue(ObjectValue node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitDirective(Directive node)
+        public virtual TResult VisitObjectField(ObjectField node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitListType(ListType node)
+        public virtual TResult VisitDirective(Directive node)
         {
             return DefaultVisit(node);
         }
 
-        public virtual INode VisitNonNullType(NonNullType node)
+        public virtual TResult VisitListType(ListType node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual TResult VisitNonNullType(NonNullType node)
         {
             return DefaultVisit(node);
         }
     }
 
-    public class TreeEnterLeaveWalker : Visitor
+    public class RoundTripWalker : Visitor<INode>
     {
         public void VisitList<T>(ImmutableArray<T> list) where T : INode
         {
@@ -284,7 +284,7 @@ namespace GraphQLSharp.Language
         public override INode VisitDirective(Directive node)
         {
             Visit(node.Name);
-            Visit(node.Value);
+            VisitList(node.Arguments);
             return DefaultVisit(node);
         }
 
@@ -301,7 +301,7 @@ namespace GraphQLSharp.Language
         }
     }
 
-    public class TreeWalker : Visitor
+    public class Walker : Visitor<INode>
     {
         public void VisitList<T>(ImmutableArray<T> list) where T : INode
         {
@@ -441,7 +441,7 @@ namespace GraphQLSharp.Language
         public override INode VisitDirective(Directive node)
         {
             Visit(node.Name);
-            Visit(node.Value);
+            VisitList(node.Arguments);
             return DefaultVisit(node);
         }
 
@@ -458,7 +458,7 @@ namespace GraphQLSharp.Language
         }
     }
 
-    public abstract class StackWalker : Visitor
+    public abstract class Rewriter : Visitor<INode>
     {
         private T Visit<T>(T node) where T : class, INode
         {
@@ -475,18 +475,13 @@ namespace GraphQLSharp.Language
             return Leave((INode)node) as T;
         }
 
-        public ImmutableArray<T> VisitList<T>(ImmutableArray<T> list) where T : class, INode
+        protected virtual ImmutableArray<T> VisitList<T>(ImmutableArray<T> list) where T : class, INode
         {
             if (list.IsDefault)
             {
                 return list;
             }
 
-            return DoVisitList(list);
-        }
-
-        private ImmutableArray<T> DoVisitList<T>(ImmutableArray<T> list) where T : class, INode
-        {
             ArrayBuilder<T> newList = null;
             for (int i = 0; i < list.Length; i++)
             {

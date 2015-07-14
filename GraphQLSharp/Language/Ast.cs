@@ -57,7 +57,7 @@ namespace GraphQLSharp.Language
     public interface INode
     {
         NodeType Kind { get; }
-        INode Accept(Visitor visitor);
+        TResult Accept<TResult>(Visitor<TResult> visitor);
     }
 
     public abstract class ANode : INode
@@ -65,7 +65,7 @@ namespace GraphQLSharp.Language
         public abstract NodeType Kind { get; }
         public Location Location { get; set; }
 
-        public abstract INode Accept(Visitor visitor);
+        public abstract TResult Accept<TResult>(Visitor<TResult> visitor);
     }
 
     #region Name
@@ -78,7 +78,7 @@ namespace GraphQLSharp.Language
         }
         public String Value { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitName(this);
         }
@@ -109,7 +109,7 @@ namespace GraphQLSharp.Language
 
         public ImmutableArray<IDefinition> Definitions { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitDocument(this);
         }
@@ -150,7 +150,7 @@ namespace GraphQLSharp.Language
         public ImmutableArray<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitOperationDefinition(this);
         }
@@ -187,7 +187,7 @@ namespace GraphQLSharp.Language
         public IType Type { get; set; }
         public IValue DefaultValue { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitVariableDefinition(this);
         }
@@ -218,7 +218,7 @@ namespace GraphQLSharp.Language
 
         public Name Name { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitVariable(this);
         }
@@ -245,7 +245,7 @@ namespace GraphQLSharp.Language
 
         public ImmutableArray<ISelection> Selections { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitSelectionSet(this);
         }
@@ -279,7 +279,7 @@ namespace GraphQLSharp.Language
         public ImmutableArray<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitField(this);
         }
@@ -315,7 +315,7 @@ namespace GraphQLSharp.Language
         public Name Name { get; set; }
         public IValue Value { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitArgument(this);
         }
@@ -350,7 +350,7 @@ namespace GraphQLSharp.Language
         public Name Name { get; set; }
         public ImmutableArray<Directive> Directives { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitFragmentSpread(this);
         }
@@ -382,7 +382,7 @@ namespace GraphQLSharp.Language
         public ImmutableArray<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitInlineFragment(this);
         }
@@ -415,7 +415,7 @@ namespace GraphQLSharp.Language
         public ImmutableArray<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitFragmentDefinition(this);
         }
@@ -456,7 +456,7 @@ namespace GraphQLSharp.Language
 
         public String Value { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitIntValue(this);
         }
@@ -471,7 +471,7 @@ namespace GraphQLSharp.Language
 
         public String Value { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitFloatValue(this);
         }
@@ -486,7 +486,7 @@ namespace GraphQLSharp.Language
 
         public String Value { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
            return  visitor.VisitStringValue(this);
         }
@@ -501,7 +501,7 @@ namespace GraphQLSharp.Language
 
         public Boolean Value { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
            return  visitor.VisitBooleanValue(this);
         }
@@ -516,7 +516,7 @@ namespace GraphQLSharp.Language
 
         public String Value { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
            return  visitor.VisitEnumValue(this);
         }
@@ -531,7 +531,7 @@ namespace GraphQLSharp.Language
 
         public ImmutableArray<IValue> Values { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
            return  visitor.VisitArrayValue(this);
         }
@@ -558,7 +558,7 @@ namespace GraphQLSharp.Language
 
         public ImmutableArray<ObjectField> Fields { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
            return  visitor.VisitObjectValue(this);
         }
@@ -585,7 +585,7 @@ namespace GraphQLSharp.Language
         public Name Name { get; set; }
         public IValue Value { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
            return  visitor.VisitObjectField(this);
         }
@@ -618,7 +618,7 @@ namespace GraphQLSharp.Language
         public Name Name { get; set; }
         public IValue Value { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
            return  visitor.VisitDirective(this);
         }
@@ -659,7 +659,7 @@ namespace GraphQLSharp.Language
 
         public IType Type { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
            return  visitor.VisitListType(this);
         }
@@ -686,7 +686,7 @@ namespace GraphQLSharp.Language
 
         public INameOrListType Type { get; set; }
 
-        public override INode Accept(Visitor visitor)
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
            return  visitor.VisitNonNullType(this);
         }
