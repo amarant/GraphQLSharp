@@ -67,27 +67,10 @@ fragment MissingOn Type
                 "Syntax Error GraphQL (1:22) Duplicate input object field a.");
         }
 
-        private string _projectDir;
-        public String ProjectDir
-        {
-            get
-            {
-                if (_projectDir == null)
-                {
-                    var codeBaseUrl = new Uri(Assembly.GetExecutingAssembly().CodeBase);
-                    var codeBasePath = Uri.UnescapeDataString(codeBaseUrl.AbsolutePath);
-                    var dirPath = Path.GetDirectoryName(codeBasePath);
-                    _projectDir = Path.Combine(dirPath, @"..\..");
-                    _projectDir = Path.GetFullPath(_projectDir);
-                }
-                return _projectDir;
-            }
-        }
-
         [Fact]
         public void ParsesKitchenSink()
         {
-            var kitchenSink = File.ReadAllText(Path.Combine(ProjectDir, "Language", "kitchen-sink.graphql"));
+            var kitchenSink = FileUtils.KitchenSink.Value;
             Parser.Parse(kitchenSink);
         }
 

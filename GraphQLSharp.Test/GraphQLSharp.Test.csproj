@@ -77,6 +77,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="FluentAssertionsUtils.cs" />
+    <Compile Include="Language\FileUtils.cs" />
     <Compile Include="Language\LexerTests.cs" />
     <Compile Include="Language\ParserTests.cs" />
     <Compile Include="Language\VisitorTests.cs" />
