@@ -81,6 +81,12 @@ fragment MissingOn Type
         }
 
         [Fact]
+        public void DoesNotAcceptFragmentsSpreadOfOn()
+        {
+            ParseErr("{ ...on }", "Syntax Error GraphQL (1:9) Expected Name, found }");
+        }
+
+        [Fact]
         public void ParseCreatesAst()
         {
             var source = new Source("{\n  node(id: 4) {\n    id,\n    name\n  }\n}\n");
