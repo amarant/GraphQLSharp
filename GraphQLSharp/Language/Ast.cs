@@ -17,7 +17,7 @@ namespace GraphQLSharp.Language
         {
         }
 
-        public Location(int start, int end, Source source)
+        public Location(int start, int end, Source source = null)
         {
             Start = start;
             End = end;

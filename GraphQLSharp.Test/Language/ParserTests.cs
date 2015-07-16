@@ -30,6 +30,44 @@ namespace GraphQLSharp.Test.Language
         }
 
         [Fact]
+        public void AcceptsOptionToNotIncludeSource()
+        {
+            var result = Parser.Parse("{ field }", new ParseOptions { NoSource = true });
+            result.ShouldBeEquivalentToDeepDynamic(
+                new Document
+                {
+                    Location = new Location(0, 9),
+                    Definitions = ImmutableArray.Create<IDefinition>(
+                        new OperationDefinition
+                        {
+                            Location = new Location(0, 9),
+                            Operation = OperationType.Query,
+                            Name = null,
+                            VariableDefinitions = ImmutableArray<VariableDefinition>.Empty,
+                            Directives = ImmutableArray<Directive>.Empty,
+                            SelectionSet = new SelectionSet
+                            {
+                                Location = new Location(0, 9),
+                                Selections = ImmutableArray.Create<ISelection>(
+                                new Field
+                                {
+                                    Location = new Location(2, 7),
+                                    Alias = null,
+                                    Name = new Name
+                                    {
+                                        Location = new Location(2, 7),
+                                        Value = "field",
+                                    },
+                                    Arguments = ImmutableArray<Argument>.Empty,
+                                    Directives = ImmutableArray<Directive>.Empty,
+                                    SelectionSet = null,
+                                })
+                            }
+                        })
+                });
+        }
+
+        [Fact]
         public void ParseProvidesUsefulErrors()
         {
             ParseErr(
