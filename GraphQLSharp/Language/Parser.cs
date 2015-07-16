@@ -57,7 +57,8 @@ namespace GraphQLSharp.Language
         }
 
         /// <summary>
-        /// Given a GraphQL source, parses it into a Document. Throws on error.
+        /// Given a GraphQL source, parses it into a Document.
+        /// Throws GraphQLError if a syntax error is encountered.
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="options">The options.</param>
@@ -69,7 +70,8 @@ namespace GraphQLSharp.Language
         }
 
         /// <summary>
-        /// Given a GraphQL source, parses it into a Document. Throws on error.
+        /// Given a GraphQL source, parses it into a Document.
+        /// Throws GraphQLError if a syntax error is encountered.
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="options">The options.</param>
