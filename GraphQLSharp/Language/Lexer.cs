@@ -232,7 +232,7 @@ namespace GraphQLSharp.Language
             }
 
             throw new SyntaxError(source, position,
-                String.Format("Unexpected character \"{0}\"", char.ConvertFromUtf32(code)));
+                String.Format("Unexpected character \"{0}\".", char.ConvertFromUtf32(code)));
         }
 
         /// <summary>
