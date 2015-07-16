@@ -75,6 +75,12 @@ fragment MissingOn Type
         }
 
         [Fact]
+        public void DoesNotAcceptFragmentsNamedOn()
+        {
+            ParseErr("fragment on on on { on }", "Syntax Error GraphQL (1:10) Unexpected Name \"on\"");
+        }
+
+        [Fact]
         public void ParseCreatesAst()
         {
             var source = new Source("{\n  node(id: 4) {\n    id,\n    name\n  }\n}\n");

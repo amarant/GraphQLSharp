@@ -486,17 +486,30 @@ namespace GraphQLSharp.Language
 
             return new FragmentSpread
             {
-                Name = ParseName(),
+                Name = ParseFragmentName(),
                 Directives = ParseDirectives(),
                 Location = GetLocation(start),
             };
+        }
+
+        /// <summary>
+        /// Parses the name of the fragment.
+        /// </summary>
+        /// <returns></returns>
+        private Name ParseFragmentName()
+        {
+            if (Token.Value == "on")
+            {
+                throw Unexpected();
+            }
+            return ParseName();
         }
 
         private FragmentDefinition ParseFragmentDefinition()
         {
             var start = Token.Start;
             ExpectKeyword("fragment");
-            var name = ParseName();
+            var name = ParseFragmentName();
             ExpectKeyword("on");
             var typeCondition = ParseName();
             return new FragmentDefinition
