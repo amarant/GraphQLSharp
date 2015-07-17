@@ -81,8 +81,14 @@ namespace GraphQLSharp.Test.Language
             LexOne("00", TokenKind.INT, 0, 1, "0");
             LexOne("-4.123", TokenKind.FLOAT, 0, 6, "-4.123");
             LexOne("0.123", TokenKind.FLOAT, 0, 5, "0.123");
+            LexOne("123e4", TokenKind.FLOAT, 0, 5, "123e4");
+            LexOne("123E4", TokenKind.FLOAT, 0, 5, "123E4");
+            LexOne("123e-4", TokenKind.FLOAT, 0, 6, "123e-4");
+            LexOne("123e+4", TokenKind.FLOAT, 0, 6, "123e+4");
             LexOne("-1.123e4", TokenKind.FLOAT, 0, 8, "-1.123e4");
+            LexOne("-1.123E4", TokenKind.FLOAT, 0, 8, "-1.123E4");
             LexOne("-1.123e-4", TokenKind.FLOAT, 0, 9, "-1.123e-4");
+            LexOne("-1.123e+4", TokenKind.FLOAT, 0, 9, "-1.123e+4");
             LexOne("-1.123e4567", TokenKind.FLOAT, 0, 11, "-1.123e4567");
         }
 
@@ -91,9 +97,9 @@ namespace GraphQLSharp.Test.Language
         {
             LexErr("+1", "Syntax Error GraphQL (1:1) Unexpected character \"+\"");
             LexErr("1.", "Syntax Error GraphQL (1:3) Invalid number");
+            LexErr(".123", "Syntax Error GraphQL (1:1) Unexpected character \".\"");
             LexErr("1.A", "Syntax Error GraphQL (1:3) Invalid number");
             LexErr("-A", "Syntax Error GraphQL (1:2) Invalid number");
-            LexErr("1.0e+4", "Syntax Error GraphQL (1:5) Invalid number");
             LexErr("1.0e", "Syntax Error GraphQL (1:5) Invalid number");
             LexErr("1.0eA", "Syntax Error GraphQL (1:5) Invalid number");
         }
