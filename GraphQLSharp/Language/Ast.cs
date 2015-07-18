@@ -52,6 +52,7 @@ namespace GraphQLSharp.Language
         Directive,
         ListType,
         NonNullType,
+        NamedType
     }
 
     public interface INode
@@ -70,7 +71,7 @@ namespace GraphQLSharp.Language
 
     #region Name
 
-    public class Name : ANode, INameOrListType
+    public class Name : ANode, IType
     {
         public override NodeType Kind
         {
@@ -378,7 +379,7 @@ namespace GraphQLSharp.Language
             get { return NodeType.InlineFragment; }
         }
 
-        public Name TypeCondition { get; set; }
+        public NamedType TypeCondition { get; set; }
         public ImmutableArray<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
 
@@ -387,7 +388,8 @@ namespace GraphQLSharp.Language
             return visitor.VisitInlineFragment(this);
         }
 
-        public InlineFragment Update(Name typeCondition, ImmutableArray<Directive> directives, SelectionSet selectionSet)
+        public InlineFragment Update(NamedType typeCondition, ImmutableArray<Directive> directives,
+            SelectionSet selectionSet)
         {
             if (TypeCondition != typeCondition ||
                 Directives != directives ||
@@ -411,7 +413,7 @@ namespace GraphQLSharp.Language
             get { return NodeType.FragmentDefinition; }
         }
         public Name Name { get; set; }
-        public Name TypeCondition { get; set; }
+        public NamedType TypeCondition { get; set; }
         public ImmutableArray<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
 
@@ -420,7 +422,8 @@ namespace GraphQLSharp.Language
             return visitor.VisitFragmentDefinition(this);
         }
 
-        public FragmentDefinition Update(Name name, Name typeCondition, ImmutableArray<Directive> directives, SelectionSet selectionSet)
+        public FragmentDefinition Update(Name name, NamedType typeCondition, 
+            ImmutableArray<Directive> directives, SelectionSet selectionSet)
         {
             if (Name != name ||
                 TypeCondition != typeCondition ||
@@ -646,6 +649,33 @@ namespace GraphQLSharp.Language
     {
     }
 
+    public class NamedType : ANode, INameOrListType
+    {
+        public override NodeType Kind
+        {
+            get { return NodeType.NamedType; }
+        }
+
+        public Name Name { get; set; }
+
+        public override TResult Accept<TResult>(Visitor<TResult> visitor)
+        {
+            return visitor.VisitNamedType(this);
+        }
+
+        public NamedType Update(Name name)
+        {
+            if (Name != name)
+            {
+                return new NamedType
+                {
+                    Name = name,
+                };
+            }
+            return this;
+        }
+    }
+
     public interface INameOrListType : IType
     {
     }
@@ -661,7 +691,7 @@ namespace GraphQLSharp.Language
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
-           return  visitor.VisitListType(this);
+           return visitor.VisitListType(this);
         }
 
         public ListType Update(IType type)

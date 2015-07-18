@@ -477,7 +477,7 @@ namespace GraphQLSharp.Language
                 Advance();
                 return new InlineFragment
                 {
-                    TypeCondition = ParseName(),
+                    TypeCondition = ParseNamedType(),
                     Directives = ParseDirectives(),
                     SelectionSet = ParseSelectionSet(),
                     Location = GetLocation(start),
@@ -511,7 +511,7 @@ namespace GraphQLSharp.Language
             ExpectKeyword("fragment");
             var name = ParseFragmentName();
             ExpectKeyword("on");
-            var typeCondition = ParseName();
+            var typeCondition = ParseNamedType();
             return new FragmentDefinition
             {
                 Name = name,
@@ -668,11 +668,9 @@ namespace GraphQLSharp.Language
 
         // Implements the parsing rules in the Types section.
 
-
-
         /// <summary>
         /// Parses the type.
-        /// Handles the Type: TypeName, ListType, and NonNullType parsing rules.
+        /// Handles the Type: NamedType, ListType, and NonNullType parsing rules.
         /// </summary>
         /// <returns></returns>
         private IType ParseType()
@@ -691,7 +689,7 @@ namespace GraphQLSharp.Language
             }
             else
             {
-                type = ParseName();
+                type = ParseNamedType();
             }
             if (Skip(TokenKind.BANG))
             {
@@ -705,9 +703,18 @@ namespace GraphQLSharp.Language
             return type;
         }
 
-
-
-
-
+        /// <summary>
+        /// Parses a NamedType.
+        /// </summary>
+        /// <returns></returns>
+        private NamedType ParseNamedType()
+        {
+            var start = Token.Start;
+            return new NamedType
+            {
+                Name = ParseName(),
+                Location = GetLocation(start),
+            };
+        }
     }
 }

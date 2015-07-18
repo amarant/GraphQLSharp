@@ -142,6 +142,11 @@ namespace GraphQLSharp.Language
         {
             return DefaultVisit(node);
         }
+
+        public virtual TResult VisitNamedType(NamedType node)
+        {
+            return DefaultVisit(node);
+        }
     }
 
     public class RoundTripWalker : Visitor<INode>
@@ -299,6 +304,12 @@ namespace GraphQLSharp.Language
             Visit(node.Type);
             return DefaultVisit(node);
         }
+
+        public override INode VisitNamedType(NamedType node)
+        {
+            VisitName(node.Name);
+            return DefaultVisit(node);
+        }
     }
 
     public class Walker : Visitor<INode>
@@ -454,6 +465,12 @@ namespace GraphQLSharp.Language
         public override INode VisitNonNullType(NonNullType node)
         {
             Visit(node.Type);
+            return DefaultVisit(node);
+        }
+
+        public override INode VisitNamedType(NamedType node)
+        {
+            VisitName(node.Name);
             return DefaultVisit(node);
         }
     }
@@ -741,6 +758,16 @@ namespace GraphQLSharp.Language
             return updatedNode;
         }
 
+        public override INode VisitNamedType(NamedType node)
+        {
+            var updatedNode = EnterNamedType(node);
+            if (updatedNode == null) return null;
+            var name = Visit(updatedNode.Name);
+            updatedNode = updatedNode.Update(name);
+            updatedNode = LeaveNamedType(updatedNode);
+            return updatedNode;
+        }
+
         public virtual INode Enter(INode node)
         {
             return node;
@@ -969,6 +996,16 @@ namespace GraphQLSharp.Language
         public virtual NonNullType LeaveNonNullType(NonNullType nonNullType)
         {
             return Leave(nonNullType);
+        }
+
+        private NamedType LeaveNamedType(NamedType namedType)
+        {
+            return Enter(namedType);
+        }
+
+        private NamedType EnterNamedType(NamedType namedType)
+        {
+            return Leave(namedType);
         }
     }
 }

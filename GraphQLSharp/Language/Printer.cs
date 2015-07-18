@@ -195,5 +195,11 @@ namespace GraphQLSharp.Language
             var type = Visit(node.Type);
             return type + "!";
         }
+
+        public override string VisitNamedType(NamedType node)
+        {
+            var name = Visit(node.Name);
+            return name;
+        }
     }
 }
