@@ -556,7 +556,7 @@ namespace GraphQLSharp.Language
     {
         public override NodeType Kind
         {
-            get { return NodeType.IntValue; }
+            get { return NodeType.ObjectValue; }
         }
 
         public ImmutableArray<ObjectField> Fields { get; set; }
