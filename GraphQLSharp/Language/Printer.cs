@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
+using static System.String;
 
 namespace GraphQLSharp.Language
 {
@@ -25,17 +26,17 @@ namespace GraphQLSharp.Language
 
         private static string ManyList(string start, ImmutableArray<String> list, string separator, string end)
         {
-            return list.Any() ? start + Join(separator, list) + end : null;
+            return list.Any() ? start + JoinNotNull(separator, list) + end : null;
         }
 
-        public static string Join(string separator, ImmutableArray<String> value)
+        public static string JoinNotNull(string separator, ImmutableArray<String> value)
         {
-            return String.Join(separator, value.Where(x => !string.IsNullOrEmpty(x)));
+            return Join(separator, value.Where(x => !IsNullOrEmpty(x)));
         }
 
-        public static string Join(string separator, params string[] value)
+        public static string JoinNotNull(string separator, params string[] value)
         {
-            return String.Join(separator, value.Where(x => !string.IsNullOrEmpty(x)));
+            return Join(separator, value.Where(x => !IsNullOrEmpty(x)));
         }
 
         public override string VisitName(Name node)
@@ -46,7 +47,7 @@ namespace GraphQLSharp.Language
         public override string VisitDocument(Document node)
         {
             var defs = VisitList(node.Definitions);
-            var res = Join("\n\n", defs) + "\n";
+            var res = JoinNotNull("\n\n", defs) + "\n";
             return res;
         }
 
@@ -55,12 +56,12 @@ namespace GraphQLSharp.Language
             var op = node.Operation == OperationType.Query ? "query" : "mutation";
             var name = Visit(node.Name);
             //TODO: verify with spec for unamed queries
-            op = string.IsNullOrEmpty(name) ? null : op;
+            op = IsNullOrEmpty(name) ? null : op;
             var defs = ManyList("(", VisitList(node.VariableDefinitions), ", ", ")");
-            var directives = Join(" ", VisitList(node.Directives));
+            var directives = JoinNotNull(" ", VisitList(node.Directives));
             var selectionSet = Visit(node.SelectionSet);
-            var nameDefsJoin = Join("", name, defs);
-            var res = Join(" ", op, nameDefsJoin, directives, selectionSet);
+            var nameDefsJoin = JoinNotNull("", name, defs);
+            var res = JoinNotNull(" ", op, nameDefsJoin, directives, selectionSet);
             return res;
         }
 
@@ -69,7 +70,7 @@ namespace GraphQLSharp.Language
             var variable = Visit(node.Variable);
             var type = Visit(node.Type);
             var defaultValue = Visit(node.DefaultValue);
-            var res = Join(" = ", variable + ": " + type, defaultValue);
+            var res = JoinNotNull(" = ", variable + ": " + type, defaultValue);
             return res;
         }
 
@@ -83,20 +84,20 @@ namespace GraphQLSharp.Language
         {
             var selections = VisitList(node.Selections);
             var res = selections.Any()
-                ? "{\n  " + Join("\n", selections).Replace("\n", "\n  ") + "\n}"
+                ? "{\n  " + JoinNotNull("\n", selections).Replace("\n", "\n  ") + "\n}"
                 : null;
             return res;
         }
 
         public override string VisitField(Field node)
         {
-            var nameAlias = Join(": ", Visit(node.Alias), Visit(node.Name));
+            var nameAlias = JoinNotNull(": ", Visit(node.Alias), Visit(node.Name));
             var argList = VisitList(node.Arguments);
             var args = ManyList("(", argList, ", ", ")");
-            var nameArgs = Join("", nameAlias, args);
-            var directives = Join(" ", VisitList(node.Directives));
+            var nameArgs = JoinNotNull("", nameAlias, args);
+            var directives = JoinNotNull(" ", VisitList(node.Directives));
             var selectionSet = Visit(node.SelectionSet);
-            var res = Join(" ", nameArgs, directives, selectionSet);
+            var res = JoinNotNull(" ", nameArgs, directives, selectionSet);
             return res;
         }
 
@@ -110,17 +111,17 @@ namespace GraphQLSharp.Language
         public override string VisitFragmentSpread(FragmentSpread node)
         {
             var name = Visit(node.Name);
-            var directives = Join(" ", VisitList(node.Directives));
-            var res = Join(" ", "..." + name, directives);
+            var directives = JoinNotNull(" ", VisitList(node.Directives));
+            var res = JoinNotNull(" ", "..." + name, directives);
             return res;
         }
 
         public override string VisitInlineFragment(InlineFragment node)
         {
             var typeCondition = Visit(node.TypeCondition);
-            var directives = Join(" ", VisitList(node.Directives));
+            var directives = JoinNotNull(" ", VisitList(node.Directives));
             var selectionSet = Visit(node.SelectionSet);
-            var inlineFragment = Join(" ", "... on", typeCondition, directives, selectionSet);
+            var inlineFragment = JoinNotNull(" ", "... on", typeCondition, directives, selectionSet);
             return inlineFragment;
         }
 
@@ -128,9 +129,9 @@ namespace GraphQLSharp.Language
         {
             var name = Visit(node.Name);
             var typeCondition = Visit(node.TypeCondition);
-            var directives = Join(" ", VisitList(node.Directives));
+            var directives = JoinNotNull(" ", VisitList(node.Directives));
             var selectionSet = Visit(node.SelectionSet);
-            var fragmentDefinition = Join(" ", "fragment", name, "on", typeCondition, directives, selectionSet);
+            var fragmentDefinition = JoinNotNull(" ", "fragment", name, "on", typeCondition, directives, selectionSet);
             return fragmentDefinition;
         }
 
@@ -161,13 +162,13 @@ namespace GraphQLSharp.Language
 
         public override string VisitArrayValue(ArrayValue node)
         {
-            var values = Join(", ", VisitList(node.Values));
+            var values = JoinNotNull(", ", VisitList(node.Values));
             return "[" + values + "]";
         }
 
         public override string VisitObjectValue(ObjectValue node)
         {
-            var values = Join(", ", VisitList(node.Fields));
+            var values = JoinNotNull(", ", VisitList(node.Fields));
             return "{" + values + "}";
         }
 
@@ -180,7 +181,7 @@ namespace GraphQLSharp.Language
         {
             var name = Visit(node.Name);
             var arguments = ManyList("(", VisitList(node.Arguments), ", ", ")");
-            var directive = Join("", "@" + name, arguments);
+            var directive = JoinNotNull("", "@" + name, arguments);
             return directive;
         }
 
