@@ -159,10 +159,8 @@ namespace GraphQLSharp.Language
                 Advance();
                 return token;
             }
-            throw new SyntaxError(this.Source, token.Start,
-                String.Format("Expected {0}, found {1}",
-                    TokenKindHelpers.GetTokenKindDesc(kind),
-                    token.GetTokenDesc()));
+            throw new SyntaxError(Source, token.Start,
+                $"Expected {TokenKindHelpers.GetTokenKindDesc(kind)}, found {token.GetTokenDesc()}");
         }
 
         /// <summary>
@@ -183,7 +181,7 @@ namespace GraphQLSharp.Language
                 return Token;
             }
             throw new SyntaxError(Source, token.Start,
-                String.Format("Expected \"{0}\", found {1}", value, token.GetTokenDesc()));
+                $"Expected \"{value}\", found {token.GetTokenDesc()}");
         }
 
         /// <summary>
@@ -198,7 +196,7 @@ namespace GraphQLSharp.Language
             return new SyntaxError(
                 this.Source,
                 token.Start,
-                String.Format("Unexpected {0}", token.GetTokenDesc()));
+                $"Unexpected {token.GetTokenDesc()}");
         }
 
         /// <summary>
@@ -626,7 +624,7 @@ namespace GraphQLSharp.Language
             if (fieldNames.ContainsKey(name.Value))
             {
                 throw new SyntaxError(Source, start,
-                    String.Format("Duplicate input object field {0}.", name.Value));
+                    $"Duplicate input object field {name.Value}.");
             }
             fieldNames.Add(name.Value, true);
             Expect(TokenKind.COLON);

@@ -24,12 +24,8 @@ namespace GraphQLSharp.Language
         {
             get
             {
-                return String.Format("Syntax Error {0} ({1}:{2}) {3}\n\n{4}",
-                    Source.Name,
-                    Location.Line,
-                    Location.Column,
-                    Description,
-                    HighlightSourceAtLocation(Source, Location));
+                return
+                    $"Syntax Error {Source.Name} ({Location.Line}:{Location.Column}) {Description}\n\n{HighlightSourceAtLocation(Source, Location)}";
             }
         }
 

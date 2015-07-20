@@ -48,7 +48,7 @@ namespace GraphQLSharp.Language
         {
             return String.IsNullOrEmpty(Value)
                 ? TokenKindHelpers.GetTokenKindDesc(Kind)
-                : String.Format("{0} \"{1}\"", TokenKindHelpers.GetTokenKindDesc(Kind), Value);
+                : $"{TokenKindHelpers.GetTokenKindDesc(Kind)} \"{Value}\"";
         }
     }
 
@@ -232,7 +232,7 @@ namespace GraphQLSharp.Language
             }
 
             throw new SyntaxError(source, position,
-                String.Format("Unexpected character \"{0}\".", char.ConvertFromUtf32(code)));
+                $"Unexpected character \"{char.ConvertFromUtf32(code)}\".");
         }
 
         /// <summary>
