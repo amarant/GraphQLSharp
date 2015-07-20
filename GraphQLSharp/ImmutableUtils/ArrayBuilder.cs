@@ -45,7 +45,7 @@ namespace GraphQLSharp.ImmutableUtils
 
         public ArrayBuilder(int size)
         {
-            this.builder = ImmutableArray.CreateBuilder<T>(size);
+            builder = ImmutableArray.CreateBuilder<T>(size);
         }
 
         public ArrayBuilder() :
@@ -63,14 +63,14 @@ namespace GraphQLSharp.ImmutableUtils
         /// </summary>
         public ImmutableArray<T> ToImmutable()
         {
-            return this.builder.ToImmutable();
+            return builder.ToImmutable();
         }
 
         public int Count
         {
             get
             {
-                return this.builder.Count;
+                return builder.Count;
             }
         }
 
@@ -78,96 +78,96 @@ namespace GraphQLSharp.ImmutableUtils
         {
             get
             {
-                return this.builder[index];
+                return builder[index];
             }
 
             set
             {
-                this.builder[index] = value;
+                builder[index] = value;
             }
         }
 
         public void Add(T item)
         {
-            this.builder.Add(item);
+            builder.Add(item);
         }
 
         public void Insert(int index, T item)
         {
-            this.builder.Insert(index, item);
+            builder.Insert(index, item);
         }
 
         public void EnsureCapacity(int capacity)
         {
-            if (this.builder.Capacity < capacity)
+            if (builder.Capacity < capacity)
             {
-                this.builder.Capacity = capacity;
+                builder.Capacity = capacity;
             }
         }
 
         public void Clear()
         {
-            this.builder.Clear();
+            builder.Clear();
         }
 
         public bool Contains(T item)
         {
-            return this.builder.Contains(item);
+            return builder.Contains(item);
         }
 
         public void RemoveAt(int index)
         {
-            this.builder.RemoveAt(index);
+            builder.RemoveAt(index);
         }
 
         public void RemoveLast()
         {
-            this.builder.RemoveAt(this.builder.Count - 1);
+            builder.RemoveAt(builder.Count - 1);
         }
 
         public void ReverseContents()
         {
-            this.builder.Reverse();
+            builder.Reverse();
         }
 
         public void Sort()
         {
-            this.builder.Sort();
+            builder.Sort();
         }
 
         public void Sort(IComparer<T> comparer)
         {
-            this.builder.Sort(comparer);
+            builder.Sort(comparer);
         }
 
         public void Sort(int startIndex, IComparer<T> comparer)
         {
-            this.builder.Sort(startIndex, this.builder.Count - startIndex, comparer);
+            builder.Sort(startIndex, builder.Count - startIndex, comparer);
         }
 
         public T[] ToArray()
         {
-            return this.builder.ToArray();
+            return builder.ToArray();
         }
 
         public void CopyTo(T[] array, int start)
         {
-            this.builder.CopyTo(array, start);
+            builder.CopyTo(array, start);
         }
 
         public T Last()
         {
-            return this.builder[this.builder.Count - 1];
+            return builder[builder.Count - 1];
         }
 
         public T First()
         {
-            return this.builder[0];
+            return builder[0];
         }
 
         public bool Any()
         {
-            return this.builder.Count > 0;
+            return builder.Count > 0;
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace GraphQLSharp.ImmutableUtils
                 return default(ImmutableArray<T>);
             }
 
-            return this.ToImmutable();
+            return ToImmutable();
         }
 
         /// <summary>
@@ -208,15 +208,15 @@ namespace GraphQLSharp.ImmutableUtils
         /// </summary>
         public ImmutableArray<T> ToImmutableAndFree()
         {
-            var result = this.ToImmutable();
-            this.Free();
+            var result = ToImmutable();
+            Free();
             return result;
         }
 
         public T[] ToArrayAndFree()
         {
-            var result = this.ToArray();
-            this.Free();
+            var result = ToArray();
+            Free();
             return result;
         }
 
@@ -238,11 +238,11 @@ namespace GraphQLSharp.ImmutableUtils
                 // while the chance that we will need their size is diminishingly small.
                 // It makes sense to constrain the size to some "not too small" number. 
                 // Overal perf does not seem to be very sensitive to this number, so I picked 128 as a limit.
-                if (this.Count < 128)
+                if (Count < 128)
                 {
-                    if (this.Count != 0)
+                    if (Count != 0)
                     {
-                        this.Clear();
+                        Clear();
                     }
 
                     pool.Free(this);
@@ -309,14 +309,14 @@ namespace GraphQLSharp.ImmutableUtils
             return GetEnumerator();
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
 
         internal Dictionary<K, ImmutableArray<T>> ToDictionary<K>(Func<T, K> keySelector, IEqualityComparer<K> comparer = null)
         {
-            if (this.Count == 1)
+            if (Count == 1)
             {
                 var dictionary = new Dictionary<K, ImmutableArray<T>>(1, comparer);
                 T value = this[0];
@@ -336,7 +336,7 @@ namespace GraphQLSharp.ImmutableUtils
                     ArrayBuilder<T> bucket;
                     if (!accumulator.TryGetValue(key, out bucket))
                     {
-                        bucket = ArrayBuilder<T>.GetInstance();
+                        bucket = GetInstance();
                         accumulator.Add(key, bucket);
                     }
 
@@ -357,49 +357,49 @@ namespace GraphQLSharp.ImmutableUtils
 
         public void AddRange(ArrayBuilder<T> items)
         {
-            this.builder.AddRange(items.builder);
+            builder.AddRange(items.builder);
         }
 
         public void AddRange<U>(ArrayBuilder<U> items) where U : T
         {
-            this.builder.AddRange(items.builder);
+            builder.AddRange(items.builder);
         }
 
         public void AddRange(ImmutableArray<T> items)
         {
-            this.builder.AddRange(items);
+            builder.AddRange(items);
         }
 
         public void AddRange(ImmutableArray<T> items, int length)
         {
-            this.builder.AddRange(items, length);
+            builder.AddRange(items, length);
         }
 
         public void AddRange(IEnumerable<T> items)
         {
-            this.builder.AddRange(items);
+            builder.AddRange(items);
         }
 
         public void AddRange(params T[] items)
         {
-            this.builder.AddRange(items);
+            builder.AddRange(items);
         }
 
         public void AddRange(T[] items, int length)
         {
-            this.builder.AddRange(items, length);
+            builder.AddRange(items, length);
         }
 
         public void Clip(int limit)
         {
             Debug.Assert(limit <= Count);
-            this.builder.Count = limit;
+            builder.Count = limit;
         }
 
         public void ZeroInit(int count)
         {
-            this.builder.Clear();
-            this.builder.Count = count;
+            builder.Clear();
+            builder.Count = count;
         }
 
         public void AddMany(T item, int count)

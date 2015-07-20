@@ -102,7 +102,7 @@ namespace GraphQLSharp.ImmutableUtils
         {
             Debug.Assert(size >= 1);
             this.factory = factory;
-            this.items = new Element[size - 1];
+            items = new Element[size - 1];
         }
 
         private T CreateInstance()

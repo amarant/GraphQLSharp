@@ -16,32 +16,32 @@ namespace GraphQLSharp.ImmutableUtils
             public Enumerator(ArrayBuilder<T> builder)
             {
                 this.builder = builder;
-                this.index = -1;
+                index = -1;
             }
 
             public T Current
             {
                 get
                 {
-                    return this.builder[this.index];
+                    return builder[index];
                 }
             }
 
             public bool MoveNext()
             {
-                this.index++;
-                return this.index < this.builder.Count;
+                index++;
+                return index < builder.Count;
             }
 
             public void Dispose()
             {
             }
 
-            object System.Collections.IEnumerator.Current
+            object IEnumerator.Current
             {
                 get
                 {
-                    return this.Current;
+                    return Current;
                 }
             }
 
