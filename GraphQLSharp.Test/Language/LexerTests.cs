@@ -11,14 +11,14 @@ namespace GraphQLSharp.Test.Language
             TokenKind kind, int start, int end, string value)
         {
             (new Lexer(new Source(body)))
-                .NextToken(null)
+                .NextToken()
                 .ShouldBeEquivalentToDeepDynamic(new Token(kind, start, end, value));
         }
 
         private static void LexErr(String body, String message)
         {
             Action action = () => (new Lexer(new Source(body)))
-                .NextToken(null);
+                .NextToken();
             action.ShouldThrow<SyntaxError>().Where(err => err.Message.StartsWith(message));
         }
 
