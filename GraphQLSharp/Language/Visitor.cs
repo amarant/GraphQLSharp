@@ -155,7 +155,7 @@ namespace GraphQLSharp.Language
         {
             if (!list.IsDefault)
             {
-                for (int i = 0; i < list.Length; i++)
+                for (var i = 0; i < list.Length; i++)
                 {
                     Visit(list[i]);
                 }
@@ -318,7 +318,7 @@ namespace GraphQLSharp.Language
         {
             if (!list.IsDefault)
             {
-                for (int i = 0; i < list.Length; i++)
+                for (var i = 0; i < list.Length; i++)
                 {
                     Visit(list[i]);
                 }
@@ -500,7 +500,7 @@ namespace GraphQLSharp.Language
             }
 
             ArrayBuilder<T> newList = null;
-            for (int i = 0; i < list.Length; i++)
+            for (var i = 0; i < list.Length; i++)
             {
                 var item = list[i];
                 Debug.Assert(item != null);
