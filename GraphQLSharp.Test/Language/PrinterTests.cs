@@ -1,7 +1,5 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using GraphQLSharp.Language;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xunit;
 
 namespace GraphQLSharp.Test.Language

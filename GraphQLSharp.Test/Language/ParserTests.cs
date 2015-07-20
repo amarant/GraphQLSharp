@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
-using System.Reflection;
 using FluentAssertions;
 using GraphQLSharp.Language;
 using Xunit;
