@@ -15,8 +15,8 @@ namespace GraphQLSharp.Language
 
         public Source(String body, String name = "GraphQL")
         {
-            this.Body = body;
-            this.Name = name;
+            Body = body;
+            Name = name;
         }
     }
 }

@@ -37,7 +37,7 @@ namespace GraphQLSharp.Language
         /// </returns>
         public override string ToString()
         {
-            return this.GetTokenDesc();
+            return GetTokenDesc();
         }
 
         /// <summary>

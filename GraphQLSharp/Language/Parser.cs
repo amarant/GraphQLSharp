@@ -21,10 +21,6 @@ namespace GraphQLSharp.Language
         /// disables that behavior for performance or testing.
         /// </summary>
         public bool? NoSource { get; set; }
-
-        public ParseOptions()
-        {
-        }
     }
 
     public class Parser
@@ -86,25 +82,25 @@ namespace GraphQLSharp.Language
         /// <returns></returns>
         public Location GetLocation(int start)
         {
-            if (this.Options.NoLocation == true)
+            if (Options.NoLocation == true)
             {
                 return null;
             }
 
-            if (this.Options.NoSource == true)
+            if (Options.NoSource == true)
             {
                 return new Location
                 {
                     Start = start,
-                    End = this.PrevEnd,
+                    End = PrevEnd,
                 };
             }
 
             return new Location
             {
-                Source = this.Source,
+                Source = Source,
                 Start = start,
-                End = this.PrevEnd,
+                End = PrevEnd,
             };
         }
 
@@ -113,9 +109,9 @@ namespace GraphQLSharp.Language
         /// </summary>
         public void Advance()
         {
-            var prevEnd = this.Token.End;
-            this.PrevEnd = prevEnd;
-            this.Token = this._lexToken.NextToken(prevEnd);
+            var prevEnd = Token.End;
+            PrevEnd = prevEnd;
+            Token = _lexToken.NextToken(prevEnd);
         }
 
         /// <summary>
@@ -124,7 +120,7 @@ namespace GraphQLSharp.Language
         /// <returns>If the next token is of a given kind.</returns>
         public bool Peek(TokenKind kind)
         {
-            return this.Token.Kind == kind;
+            return Token.Kind == kind;
         }
 
         /// <summary>
@@ -135,7 +131,7 @@ namespace GraphQLSharp.Language
         /// <returns></returns>
         public bool Skip(TokenKind kind)
         {
-            var match = this.Token.Kind == kind;
+            var match = Token.Kind == kind;
             if (match)
             {
                 Advance();
@@ -153,7 +149,7 @@ namespace GraphQLSharp.Language
         /// <exception cref="SyntaxError"></exception>
         public Token Expect(TokenKind kind)
         {
-            var token = this.Token;
+            var token = Token;
             if (token.Kind == kind)
             {
                 Advance();
@@ -192,9 +188,9 @@ namespace GraphQLSharp.Language
         /// <returns></returns>
         public SyntaxError Unexpected(Token atToken = null)
         {
-            var token = atToken ?? this.Token;
+            var token = atToken ?? Token;
             return new SyntaxError(
-                this.Source,
+                Source,
                 token.Start,
                 $"Unexpected {token.GetTokenDesc()}");
         }
@@ -263,7 +259,7 @@ namespace GraphQLSharp.Language
 
         public Document ParseDocument()
         {
-            var start = this.Token.Start;
+            var start = Token.Start;
             var definitions = ImmutableArray<IDefinition>.Empty;
             do
             {
@@ -272,11 +268,11 @@ namespace GraphQLSharp.Language
                     definitions = definitions.Add(ParseOperationDefinition());
                 } else if (Peek(TokenKind.NAME))
                 {
-                    if (this.Token.Value == "query" || this.Token.Value == "mutation")
+                    if (Token.Value == "query" || Token.Value == "mutation")
                     {
                         definitions = definitions.Add(ParseOperationDefinition());
                     }
-                    else if (this.Token.Value == "fragment")
+                    else if (Token.Value == "fragment")
                     {
                         definitions = definitions.Add(ParseFragmentDefinition());
                     }
@@ -301,7 +297,7 @@ namespace GraphQLSharp.Language
 
         private OperationDefinition ParseOperationDefinition()
         {
-            var start = this.Token.Start;
+            var start = Token.Start;
             if (Peek(TokenKind.BRACE_L))
             {
                 return new OperationDefinition
