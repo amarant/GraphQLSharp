@@ -13,7 +13,7 @@ namespace GraphQLSharp.Language
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="options">The options.</param>
-        public Parser(Source source, ParseOptions options)
+        protected Parser(Source source, ParseOptions options)
         {
             Source = source;
             Options = options ?? new ParseOptions();

@@ -1,22 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GraphQLSharp.Language.Schema;
 
 namespace GraphQLSharp.Language
 {
     public class SchemaParser : Parser
     {
-        public SchemaParser(Source source, ParseOptions options) : base(source, options)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SchemaParser"/> class.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="options">The options.</param>
+        private SchemaParser(Source source, ParseOptions options) : base(source, options)
         {
         }
 
-        public SchemaDocument ParseSchema()
+        /// <summary>
+        /// Given a GraphQL schema source, parses it into a SchemaDocument.
+        /// Throws GraphQLError if a syntax error is encountered.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
+        public static SchemaDocument ParseSchema(Source source, ParseOptions options = null)
         {
-            return ParseSchemaDocument();
+            var parser = new SchemaParser(source, options);
+            return parser.ParseSchemaDocument();
+        }
+
+        /// <summary>
+        /// Given a GraphQL schema source, parses it into a SchemaDocument.
+        /// Throws GraphQLError if a syntax error is encountered.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
+        public static SchemaDocument ParseSchema(String source, ParseOptions options = null)
+        {
+            return ParseSchema(new Source(source), options);
         }
 
         /// <summary>
