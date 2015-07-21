@@ -55,6 +55,7 @@
     <Compile Include="Language\Location.cs" />
     <Compile Include="Language\Error.cs" />
     <Compile Include="Language\Parser.cs" />
+    <Compile Include="Language\ParserCore.cs" />
     <Compile Include="Language\Printer.cs" />
     <Compile Include="Language\Schema\Ast.cs" />
     <Compile Include="Language\Schema\SchemaParser.cs" />
