@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using GraphQLSharp.ImmutableUtils;
+using GraphQLSharp.Language.Schema;
 
 namespace GraphQLSharp.Language
 {
@@ -144,6 +145,61 @@ namespace GraphQLSharp.Language
         }
 
         public virtual TResult VisitNamedType(NamedType node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual TResult VisitTypeDefinition(TypeDefinition node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual TResult VisitInterfaceDefinition(InterfaceDefinition node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual TResult VisitFieldDefinition(FieldDefinition node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual TResult VisitArgumentDefinition(ArgumentDefinition node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual TResult VisitEnumDefinition(EnumDefinition node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual TResult VisitScalarDefinition(ScalarDefinition node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual TResult VisitInputObjectDefinition(InputObjectDefinition node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual TResult VisitSchemaDocument(SchemaDocument node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual TResult VisitUnionDefinition(UnionDefinition node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual TResult VisitEnumValueDefinition(EnumValueDefinition node)
+        {
+            return DefaultVisit(node);
+        }
+
+        public virtual  TResult VisitInputFieldDefinition(InputFieldDefinition node)
         {
             return DefaultVisit(node);
         }

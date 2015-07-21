@@ -52,7 +52,18 @@ namespace GraphQLSharp.Language
         Directive,
         ListType,
         NonNullType,
-        NamedType
+        NamedType,
+        TypeDefinition,
+        InterfaceDefinition,
+        FieldDefinition,
+        ArgumentDefinition,
+        EnumDefinition,
+        ScalarDefinition,
+        InputObjectDefinition,
+        UnionDefinition,
+        EnumValueDefinition,
+        InputFieldDefinition,
+        SchemaDocument
     }
 
     public interface INode
@@ -71,7 +82,7 @@ namespace GraphQLSharp.Language
 
     #region Name
 
-    public class Name : ANode, IType
+    public class Name : ANode
     {
         public override NodeType Kind
         {

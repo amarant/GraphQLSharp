@@ -520,7 +520,7 @@ namespace GraphQLSharp.Language
             return ParseValue(false);
         }
 
-        private IValue ParseConstValue()
+        protected IValue ParseConstValue()
         {
             return ParseValue(true);
         }
@@ -664,7 +664,7 @@ namespace GraphQLSharp.Language
         /// Handles the Type: NamedType, ListType, and NonNullType parsing rules.
         /// </summary>
         /// <returns></returns>
-        private IType ParseType()
+        protected IType ParseType()
         {
             var start = Token.Start;
             INameOrListType type;
@@ -698,7 +698,7 @@ namespace GraphQLSharp.Language
         /// Parses a NamedType.
         /// </summary>
         /// <returns></returns>
-        private NamedType ParseNamedType()
+        protected NamedType ParseNamedType()
         {
             var start = Token.Start;
             return new NamedType
