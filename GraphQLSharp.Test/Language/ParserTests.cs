@@ -105,7 +105,7 @@ fragment MissingOn Type
         [Fact]
         public void ParsesKitchenSink()
         {
-            var kitchenSink = FileUtils.KitchenSink.Value;
+            var kitchenSink = TestUtils.KitchenSink.Value;
             Parser.Parse(kitchenSink);
         }
 

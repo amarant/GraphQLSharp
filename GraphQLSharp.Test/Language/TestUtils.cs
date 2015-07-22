@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace GraphQLSharp.Test.Language
 {
-    public class FileUtils
+    public static class TestUtils
     {
         public static Lazy<String> ProjectDir = new Lazy<string>(() =>
         {
@@ -18,5 +18,10 @@ namespace GraphQLSharp.Test.Language
 
         public static Lazy<String> KitchenSink = new Lazy<string>(() => 
             File.ReadAllText(Path.Combine(ProjectDir.Value, "Language", "kitchen-sink.graphql")));
+
+        public static String ToLF(this String str)
+        {
+            return str.Replace("\r\n", "\n");
+        }
     }
 }

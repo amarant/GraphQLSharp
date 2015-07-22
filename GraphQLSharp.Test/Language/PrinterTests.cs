@@ -9,7 +9,7 @@ namespace GraphQLSharp.Test.Language
         [Fact]
         public void DoesNotAlterAst()
         {
-            var kitchenSink = FileUtils.KitchenSink.Value;
+            var kitchenSink = TestUtils.KitchenSink.Value;
             var ast = Parser.Parse(kitchenSink);
             var astCopy = Parser.Parse(kitchenSink);
             var printer = new Printer();
@@ -34,7 +34,7 @@ namespace GraphQLSharp.Test.Language
         [Fact]
         public void PrintsKitchenSink()
         {
-            var kitchenSink = FileUtils.KitchenSink.Value;
+            var kitchenSink = TestUtils.KitchenSink.Value;
             var ast = Parser.Parse(kitchenSink);
             var printer = new Printer();
             var printed = printer.VisitDocument(ast);
