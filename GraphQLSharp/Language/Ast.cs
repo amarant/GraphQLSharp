@@ -84,10 +84,17 @@ namespace GraphQLSharp.Language
 
     public class Name : ANode
     {
-        public override NodeType Kind
+        public Name()
         {
-            get { return NodeType.Name; }
         }
+
+        public Name(String value, Location location)
+        {
+            Value = value;
+            Location = location;
+        }
+
+        public override NodeType Kind => NodeType.Name;
         public String Value { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -114,11 +121,7 @@ namespace GraphQLSharp.Language
 
     public class Document : ANode
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.Document; }
-        }
-
+        public override NodeType Kind => NodeType.Document;
         public ImmutableArray<IDefinition> Definitions { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -151,11 +154,7 @@ namespace GraphQLSharp.Language
 
     public class OperationDefinition : ANode, IDefinition
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.OperationDefinition; }
-        }
-
+        public override NodeType Kind => NodeType.OperationDefinition;
         public OperationType Operation { get; set; }
         public Name Name { get; set; }
         public ImmutableArray<VariableDefinition> VariableDefinitions { get; set; }
@@ -190,11 +189,7 @@ namespace GraphQLSharp.Language
 
     public class VariableDefinition : ANode
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.VariableDefinition; }
-        }
-
+        public override NodeType Kind => NodeType.VariableDefinition;
         public Variable Variable { get; set; }
         public IType Type { get; set; }
         public IValue DefaultValue { get; set; }
@@ -223,11 +218,7 @@ namespace GraphQLSharp.Language
 
     public class Variable : ANode, IValue
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.Variable; }
-        }
-
+        public override NodeType Kind => NodeType.Variable;
         public Name Name { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -250,11 +241,7 @@ namespace GraphQLSharp.Language
 
     public class SelectionSet : ANode
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.SelectionSet; }
-        }
-
+        public override NodeType Kind => NodeType.SelectionSet;
         public ImmutableArray<ISelection> Selections { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -281,10 +268,7 @@ namespace GraphQLSharp.Language
 
     public class Field : ANode, ISelection
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.Field; }
-        }
+        public override NodeType Kind => NodeType.Field;
         public Name Alias { get; set; }
         public Name Name { get; set; }
         public ImmutableArray<Argument> Arguments { get; set; }
@@ -319,11 +303,7 @@ namespace GraphQLSharp.Language
 
     public class Argument : ANode
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.Argument; }
-        }
-
+        public override NodeType Kind => NodeType.Argument;
         public Name Name { get; set; }
         public IValue Value { get; set; }
 
@@ -354,11 +334,7 @@ namespace GraphQLSharp.Language
 
     public class FragmentSpread : ANode, ISelection
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.FragmentSpread; }
-        }
-
+        public override NodeType Kind => NodeType.FragmentSpread;
         public Name Name { get; set; }
         public ImmutableArray<Directive> Directives { get; set; }
 
@@ -385,11 +361,7 @@ namespace GraphQLSharp.Language
 
     public class InlineFragment : ANode, ISelection
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.InlineFragment; }
-        }
-
+        public override NodeType Kind => NodeType.InlineFragment;
         public NamedType TypeCondition { get; set; }
         public ImmutableArray<Directive> Directives { get; set; }
         public SelectionSet SelectionSet { get; set; }
@@ -419,10 +391,7 @@ namespace GraphQLSharp.Language
 
     public class FragmentDefinition : ANode, IDefinition
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.FragmentDefinition; }
-        }
+        public override NodeType Kind => NodeType.FragmentDefinition;
         public Name Name { get; set; }
         public NamedType TypeCondition { get; set; }
         public ImmutableArray<Directive> Directives { get; set; }
@@ -463,11 +432,7 @@ namespace GraphQLSharp.Language
 
     public class IntValue : ANode, IValue
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.IntValue; }
-        }
-
+        public override NodeType Kind => NodeType.IntValue;
         public String Value { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -478,11 +443,7 @@ namespace GraphQLSharp.Language
 
     public class FloatValue : ANode, IValue
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.FloatValue; }
-        }
-
+        public override NodeType Kind => NodeType.FloatValue;
         public String Value { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -493,11 +454,7 @@ namespace GraphQLSharp.Language
 
     public class StringValue : ANode, IValue
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.StringValue; }
-        }
-
+        public override NodeType Kind => NodeType.StringValue;
         public String Value { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -508,11 +465,7 @@ namespace GraphQLSharp.Language
 
     public class BooleanValue : ANode, IValue
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.BooleanValue; }
-        }
-
+        public override NodeType Kind => NodeType.BooleanValue;
         public Boolean Value { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -523,11 +476,7 @@ namespace GraphQLSharp.Language
 
     public class EnumValue : ANode, IValue
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.EnumValue; }
-        }
-
+        public override NodeType Kind => NodeType.EnumValue;
         public String Value { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -538,11 +487,7 @@ namespace GraphQLSharp.Language
 
     public class ArrayValue : ANode, IValue
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.ArrayValue; }
-        }
-
+        public override NodeType Kind => NodeType.ArrayValue;
         public ImmutableArray<IValue> Values { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -565,11 +510,7 @@ namespace GraphQLSharp.Language
 
     public class ObjectValue : ANode, IValue
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.ObjectValue; }
-        }
-
+        public override NodeType Kind => NodeType.ObjectValue;
         public ImmutableArray<ObjectField> Fields { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -592,10 +533,7 @@ namespace GraphQLSharp.Language
 
     public class ObjectField : ANode
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.ObjectField; }
-        }
+        public override NodeType Kind => NodeType.ObjectField;
         public Name Name { get; set; }
         public IValue Value { get; set; }
 
@@ -625,10 +563,7 @@ namespace GraphQLSharp.Language
 
     public class Directive : ANode
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.Directive; }
-        }
+        public override NodeType Kind => NodeType.Directive;
         public Name Name { get; set; }
         public ImmutableArray<Argument> Arguments { get; set; }
 
@@ -662,11 +597,17 @@ namespace GraphQLSharp.Language
 
     public class NamedType : ANode, INameOrListType
     {
-        public override NodeType Kind
+        public NamedType()
         {
-            get { return NodeType.NamedType; }
         }
 
+        public NamedType(String value, int start, int end, Source source = null)
+        {
+            Location = new Location(start, end, source);
+            Name = new Name(value, Location);
+        }
+
+        public override NodeType Kind => NodeType.NamedType;
         public Name Name { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -693,11 +634,7 @@ namespace GraphQLSharp.Language
 
     public class ListType : ANode, INameOrListType
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.ListType; }
-        }
-
+        public override NodeType Kind => NodeType.ListType;
         public IType Type { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -720,11 +657,7 @@ namespace GraphQLSharp.Language
 
     public class NonNullType : ANode, IType
     {
-        public override NodeType Kind
-        {
-            get { return NodeType.NonNullType; }
-        }
-
+        public override NodeType Kind => NodeType.NonNullType;
         public INameOrListType Type { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
