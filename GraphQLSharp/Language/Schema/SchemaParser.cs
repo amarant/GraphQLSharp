@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
-using GraphQLSharp.Language.Schema;
 
-namespace GraphQLSharp.Language
+namespace GraphQLSharp.Language.Schema
 {
     public class SchemaParser : Parser
     {
