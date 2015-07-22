@@ -68,5 +68,65 @@ type Hello {
             };
             doc.ShouldBeEquivalentToDeepDynamic(expected);
         }
+
+        [Fact]
+        public void SimpleTypeInheritingInterface()
+        {
+            var body = new Source("type Hello implements World { }");
+            var doc = SchemaParser.ParseSchema(body);
+            var expected = new SchemaDocument
+            {
+                Definitions = ImmutableArray.Create<SchemaDefinition>(
+                    new TypeDefinition
+                    {
+                        Name = new Name("Hello", new Location(5, 10, body)),
+                        Interfaces = ImmutableArray.Create(new NamedType("World", 22, 27, body)),
+                        Location = new Location(0, 31, body),
+                    }),
+                Location = new Location(0, 31, body),
+            };
+            doc.ShouldBeEquivalentToDeepDynamic(expected);
+        }
+
+        [Fact]
+        public void SimpleTypeInheritingMultipleInterfaces()
+        {
+            var body = new Source("type Hello implements Wo, rld { }");
+            var doc = SchemaParser.ParseSchema(body);
+            var expected = new SchemaDocument
+            {
+                Definitions = ImmutableArray.Create<SchemaDefinition>(
+                    new TypeDefinition
+                    {
+                        Name = new Name("Hello", new Location(5, 10, body)),
+                        Interfaces = ImmutableArray.Create(
+                            new NamedType("Wo", 22, 24, body),
+                            new NamedType("rld", 26, 29, body)),
+                        Location = new Location(0, 33, body),
+                    }),
+                Location = new Location(0, 33, body),
+            };
+            doc.ShouldBeEquivalentToDeepDynamic(expected);
+        }
+
+        [Fact]
+        public void SingleValueEnum()
+        {
+            var body = new Source("enum Hello { WORLD }");
+            var doc = SchemaParser.ParseSchema(body);
+            var expected = new SchemaDocument
+            {
+                Definitions = ImmutableArray.Create<SchemaDefinition>(
+                    new EnumDefinition
+                    {
+                        Name = new Name("Hello", new Location(5, 10, body)),
+                        Values = ImmutableArray.Create(
+                            new EnumValueDefinition("WORLD", new Location(13, 18, body))),
+                        Location = new Location(0, 20, body),
+                    }),
+                    Location = new Location(0, 20, body),
+            };
+            doc.ShouldBeEquivalentToDeepDynamic(expected);
+        }
     }
 }

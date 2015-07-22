@@ -1,11 +1,12 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 
 namespace GraphQLSharp.Language.Schema
 {
     public class SchemaDocument : ANode
     {
         public override NodeType Kind => NodeType.SchemaDocument;
-        public ImmutableArray<SchemaDefinition> Definitions { get; set; }
+        public ImmutableArray<SchemaDefinition> Definitions { get; set; } = ImmutableArray<SchemaDefinition>.Empty;
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
@@ -20,14 +21,9 @@ namespace GraphQLSharp.Language.Schema
 
     public class TypeDefinition : SchemaDefinition
     {
-        public TypeDefinition()
-        {
-            Interfaces = ImmutableArray<NamedType>.Empty;
-        }
-
         public override NodeType Kind => NodeType.TypeDefinition;
-        public ImmutableArray<NamedType> Interfaces { get; set; }
-        public ImmutableArray<FieldDefinition> Fields { get; set; }
+        public ImmutableArray<NamedType> Interfaces { get; set; } = ImmutableArray<NamedType>.Empty;
+        public ImmutableArray<FieldDefinition> Fields { get; set; } = ImmutableArray<FieldDefinition>.Empty;
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
@@ -38,15 +34,10 @@ namespace GraphQLSharp.Language.Schema
 
     public class FieldDefinition : ANode
     {
-        public FieldDefinition()
-        {
-            Arguments = ImmutableArray<ArgumentDefinition>.Empty;
-        }
-
         public override NodeType Kind => NodeType.FieldDefinition;
         public Name Name { get; set; }
         public IType Type { get; set; }
-        public ImmutableArray<ArgumentDefinition> Arguments { get; set; }
+        public ImmutableArray<ArgumentDefinition> Arguments { get; set; } = ImmutableArray<ArgumentDefinition>.Empty;
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
@@ -70,7 +61,7 @@ namespace GraphQLSharp.Language.Schema
     public class InterfaceDefinition : SchemaDefinition
     {
         public override NodeType Kind => NodeType.InterfaceDefinition;
-        public ImmutableArray<FieldDefinition> Fields { get; set; }
+        public ImmutableArray<FieldDefinition> Fields { get; set; } = ImmutableArray<FieldDefinition>.Empty;
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
@@ -81,8 +72,8 @@ namespace GraphQLSharp.Language.Schema
     public class UnionDefinition : SchemaDefinition
     {
         public override NodeType Kind => NodeType.UnionDefinition;
-        public ImmutableArray<Name> Interfaces { get; set; }
-        public ImmutableArray<NamedType> Types { get; set; }
+        public ImmutableArray<Name> Interfaces { get; set; } = ImmutableArray<Name>.Empty;
+        public ImmutableArray<NamedType> Types { get; set; } = ImmutableArray<NamedType>.Empty;
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
@@ -103,7 +94,7 @@ namespace GraphQLSharp.Language.Schema
     public class EnumDefinition : SchemaDefinition
     {
         public override NodeType Kind => NodeType.EnumDefinition;
-        public ImmutableArray<EnumValueDefinition> Values { get; set; }
+        public ImmutableArray<EnumValueDefinition> Values { get; set; } = ImmutableArray<EnumValueDefinition>.Empty;
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
@@ -113,9 +104,16 @@ namespace GraphQLSharp.Language.Schema
 
     public class EnumValueDefinition : ANode
     {
+        public EnumValueDefinition() {}
+        public EnumValueDefinition(String value, Location location)
+        {
+            Name = new Name(value, location);
+            Location = location;
+        }
+
         public override NodeType Kind => NodeType.EnumValueDefinition;
         public Name Name { get; set; }
-        public ImmutableArray<Name> Values { get; set; }
+        public ImmutableArray<Name> Values { get; set; } = ImmutableArray<Name>.Empty;
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
@@ -126,7 +124,7 @@ namespace GraphQLSharp.Language.Schema
     public class InputObjectDefinition : SchemaDefinition
     {
         public override NodeType Kind => NodeType.InputObjectDefinition;
-        public ImmutableArray<InputFieldDefinition> Fields { get; set; }
+        public ImmutableArray<InputFieldDefinition> Fields { get; set; } = ImmutableArray<InputFieldDefinition>.Empty;
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
