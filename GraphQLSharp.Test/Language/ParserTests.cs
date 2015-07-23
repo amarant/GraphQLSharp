@@ -1,31 +1,12 @@
-﻿using System;
-using System.Collections.Immutable;
-using FluentAssertions;
+﻿using System.Collections.Immutable;
 using GraphQLSharp.Language;
 using Xunit;
+using static GraphQLSharp.Test.Language.TestUtils;
 
 namespace GraphQLSharp.Test.Language
 {
     public class ParserTests
     {
-        private static void ParseErr(string source, string message)
-        {
-            Action action = () => Parser.Parse(source);
-            action.ShouldThrow<SyntaxError>().Where(err => err.Message.StartsWith(message));
-        }
-
-        private void ParseErr(Source source, string message)
-        {
-            Action action = () => Parser.Parse(source);
-            action.ShouldThrow<SyntaxError>().Where(err => err.Message.StartsWith(message));
-        }
-
-        private void ParseNoErr(string source)
-        {
-            Action action = () => Parser.Parse(source);
-            action.ShouldNotThrow();
-        }
-
         [Fact]
         public void AcceptsOptionToNotIncludeSource()
         {

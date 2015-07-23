@@ -1,6 +1,9 @@
 using System;
 using System.IO;
 using System.Reflection;
+using FluentAssertions;
+using GraphQLSharp.Language;
+using GraphQLSharp.Language.Schema;
 
 namespace GraphQLSharp.Test.Language
 {
@@ -22,6 +25,30 @@ namespace GraphQLSharp.Test.Language
         public static String ToLF(this String str)
         {
             return str.Replace("\r\n", "\n");
+        }
+
+        public static void ParseSchemaErr(string source)
+        {
+            Action action = () => SchemaParser.ParseSchema(source);
+            action.ShouldThrow<SyntaxError>();
+        }
+
+        public static void ParseErr(string source, string message)
+        {
+            Action action = () => Parser.Parse(source);
+            action.ShouldThrow<SyntaxError>().Where(err => err.Message.StartsWith(message));
+        }
+
+        public static void ParseErr(Source source, string message)
+        {
+            Action action = () => Parser.Parse(source);
+            action.ShouldThrow<SyntaxError>().Where(err => err.Message.StartsWith(message));
+        }
+
+        public static void ParseNoErr(string source)
+        {
+            Action action = () => Parser.Parse(source);
+            action.ShouldNotThrow();
         }
     }
 }
