@@ -474,7 +474,7 @@ namespace GraphQLSharp.Language
         {
             var start = Token.Start;
             INameOrListType type;
-            if (Skip(TokenKind.BRACE_L))
+            if (Skip(TokenKind.BRACKET_L))
             {
                 var innerType = ParseType();
                 Expect(TokenKind.BRACKET_R);
