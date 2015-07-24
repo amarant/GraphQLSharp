@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using JetBrains.Annotations;
 
 namespace GraphQLSharp.Language.Schema
 {
@@ -16,10 +17,15 @@ namespace GraphQLSharp.Language.Schema
 
     public abstract class SchemaDefinition : ANode
     {
-        public Name Name { get; set; }
+        [NotNull] public Name Name { get; set; }
     }
 
-    public class TypeDefinition : SchemaDefinition
+    public interface ICompositeDefinition : INode
+    {
+        [NotNull] Name Name { get; set; }
+    }
+
+    public class TypeDefinition : SchemaDefinition, ICompositeDefinition
     {
         public override NodeType Kind => NodeType.TypeDefinition;
         public ImmutableArray<NamedType> Interfaces { get; set; } = ImmutableArray<NamedType>.Empty;
@@ -31,16 +37,15 @@ namespace GraphQLSharp.Language.Schema
         }
     }
 
-
     public class FieldDefinition : ANode
     {
         public override NodeType Kind => NodeType.FieldDefinition;
-        public Name Name { get; set; }
-        public IType Type { get; set; }
+        [NotNull] public Name Name { get; set; }
         public ImmutableArray<ArgumentDefinition> Arguments { get; set; } = ImmutableArray<ArgumentDefinition>.Empty;
+        public IType Type { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
-        {
+        {                              
             return visitor.VisitFieldDefinition(this);
         }
     }
@@ -48,8 +53,8 @@ namespace GraphQLSharp.Language.Schema
     public class ArgumentDefinition : ANode
     {
         public override NodeType Kind => NodeType.ArgumentDefinition;
-        public Name Name { get; set; }
-        public IType Type { get; set; }
+        [NotNull] public Name Name { get; set; }
+        [NotNull] public IType Type { get; set; }
         public IValue DefaultValue { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -58,7 +63,7 @@ namespace GraphQLSharp.Language.Schema
         }
     }
 
-    public class InterfaceDefinition : SchemaDefinition
+    public class InterfaceDefinition : SchemaDefinition, ICompositeDefinition
     {
         public override NodeType Kind => NodeType.InterfaceDefinition;
         public ImmutableArray<FieldDefinition> Fields { get; set; } = ImmutableArray<FieldDefinition>.Empty;
@@ -69,10 +74,9 @@ namespace GraphQLSharp.Language.Schema
         }
     }
 
-    public class UnionDefinition : SchemaDefinition
+    public class UnionDefinition : SchemaDefinition, ICompositeDefinition
     {
         public override NodeType Kind => NodeType.UnionDefinition;
-        public ImmutableArray<Name> Interfaces { get; set; } = ImmutableArray<Name>.Empty;
         public ImmutableArray<NamedType> Types { get; set; } = ImmutableArray<NamedType>.Empty;
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -112,8 +116,7 @@ namespace GraphQLSharp.Language.Schema
         }
 
         public override NodeType Kind => NodeType.EnumValueDefinition;
-        public Name Name { get; set; }
-        public ImmutableArray<Name> Values { get; set; } = ImmutableArray<Name>.Empty;
+        [NotNull] public Name Name { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
@@ -135,8 +138,8 @@ namespace GraphQLSharp.Language.Schema
     public class InputFieldDefinition : ANode
     {
         public override NodeType Kind => NodeType.InputFieldDefinition;
-        public Name Name { get; set; }
-        public IType Type { get; set; }
+        [NotNull] public Name Name { get; set; }
+        [NotNull] public IType Type { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
