@@ -1,23 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using GraphQLSharp.Language;
 using JetBrains.Annotations;
 
 namespace GraphQLSharp.Type
 {
-    internal interface IGraphQLType
+    public interface IGraphQLType
     {
     }
 
-    internal interface IGraphQLInputType
+    public interface IGraphQLInputType
     {
     }
 
-    internal interface IGraphQLOutputType
+    public interface IGraphQLOutputType
     {
     }
 
-    internal interface IGraphQLLeafType
+    public interface IGraphQLLeafType
     {
     }
 
@@ -29,11 +31,11 @@ namespace GraphQLSharp.Type
     {
     }
 
-    internal interface IGraphQLNullableType
+    public interface IGraphQLNullableType
     {
     }
 
-    internal interface IGraphQLUnmodifiedType
+    public interface IGraphQLUnmodifiedType
     {
     }
 
@@ -54,47 +56,25 @@ namespace GraphQLSharp.Type
     ///     });
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class GraphQLScalarType<T> : IGraphQLType, IGraphQLInputType,
+    public abstract class GraphQLScalarType<T> : IGraphQLType, IGraphQLInputType,
         IGraphQLOutputType, IGraphQLLeafType, IGraphQLNullableType, IGraphQLUnmodifiedType
     {
-        [NotNull]
-        public String Name { get; set; }
-        public String Description { get; set; }
-        private IGraphQLScalarTypeConfig<T> _scalarConfig;
+        [NotNull] public String Name { get; protected set; }
+        public String Description { get; protected set; }
 
-        public GraphQLScalarType(IGraphQLScalarTypeConfig<T> scalarConfig)
+        protected GraphQLScalarType(String name, String description)
         {
-            Debug.Assert(!string.IsNullOrEmpty(scalarConfig.Name), "Type must be named.");
-            Name = scalarConfig.Name;
-            Description = scalarConfig.Name;
-            _scalarConfig = scalarConfig;
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name), "Type must be named.");
+            }
+            Name = name;
+            Description = description;
         }
 
-        public T Coerce(object value)
-        {
-            return _scalarConfig.Coerce(value);
-        }
-
-        public T Coerce(IValue value)
-        {
-            return _scalarConfig.CoerceLiteral(value);
-        }
-
-        public override string ToString()
-        {
-            return Name;
-        }
-    }
-
-    public interface IGraphQLScalarTypeConfig<T>
-    {
-        [NotNull]
-        String Name { get; set; }
-
-        String Description { get; set; }
-
-        T Coerce(object value);
-        T CoerceLiteral(IValue value);
+        public virtual T Coerce(object value) => default(T);
+        public virtual T Coerce(IValue value) => default(T);
+        public override string ToString() => Name;
     }
 
     /// <summary>
@@ -133,29 +113,131 @@ namespace GraphQLSharp.Type
     ///       })
     ///     });
     /// </summary>
-    public class GraphQLObjectType
+    public class GraphQLObjectType : IGraphQLType, IGraphQLOutputType, IGraphQLCompositeType,
+        IGraphQLNullableType, IGraphQLNamedType
     {
-        [NotNull]
-        public String Name { get; set; }
+        [NotNull] public String Name { get; set; }
         public String Description { get; set; }
-        private GraphQLObjectTypeConfig _typeConfig;
-        private GraphQLFieldDefinitionMap _fields;
 
-        public GraphQLObjectType(GraphQLObjectTypeConfig typeConfig)
+        private Lazy<GraphQLFieldDefinitionMap> _fields;
+        public GraphQLFieldDefinitionMap Fields => _fields.Value;
+
+        private Lazy<ImmutableArray<GraphQLInterfaceType>> _interfaces;
+        public ImmutableArray<GraphQLInterfaceType> Interfaces => _interfaces.Value;
+
+        private Func<object, bool> _isTypeOf;
+
+        public GraphQLObjectType() {}
+
+        public GraphQLObjectType(string name, string description = null,
+            GraphQLFieldDefinitionMap fields = null,
+            ImmutableArray<GraphQLInterfaceType> interfaces = default(ImmutableArray<GraphQLInterfaceType>),
+            Func<object, bool> isTypeOf = null)
         {
-            Debug.Assert(!string.IsNullOrEmpty(typeConfig.Name), "Type must be named.");
-            _typeConfig = typeConfig;
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name), "Type must be named.");
+            }
+            Name = name;
+            Description = description;
+            _fields = new Lazy<GraphQLFieldDefinitionMap>(() => fields);
+            _interfaces = new Lazy<ImmutableArray<GraphQLInterfaceType>>(() => interfaces);
+            _isTypeOf = isTypeOf;
+        }
+
+        public bool? IsTypeOf(object value)
+        {
+            return _isTypeOf?.Invoke(value);
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 
-    internal class GraphQLFieldDefinitionMap
+    public interface IGraphQLNamedType
     {
     }
 
-    public class GraphQLObjectTypeConfig
+    public class GraphQLInterfaceType
     {
-        [NotNull]
-        public String Name { get; set; }
+    }
+
+    public class GraphQLFieldDefinitionMap
+    {
+        private ImmutableDictionary<string, GraphQLFieldDefinition> _dict;
+        public GraphQLFieldDefinitionMap(IEnumerable<GraphQLFieldDefinition> defs)
+        {
+            _dict = defs.ToImmutableDictionary(val => val.Name);
+        }
+
+        public GraphQLFieldDefinition this[string fieldName] => _dict[fieldName];
+    }
+
+    public class GraphQLFieldDefinition
+    {
+        public GraphQLFieldDefinition(String name, IEnumerable<GraphQLArgument> args = null,
+            IGraphQLOutputType type = null)
+        {
+            Name = name;
+            Args = args.ToImmutableDictionary(val => val.Name);
+            Type = type;
+        }
+        public delegate object ResolveFunc(object source, IDictionary<String, object> arg,
+            object context, object fieldAST, object fieldType, object parentType,
+            GraphQLSchema schema);
+        [NotNull] public String Name { get; set; }
         public String Description { get; set; }
+        [NotNull] public IGraphQLOutputType Type { get; set;}
+        public ImmutableDictionary<string, GraphQLArgument> Args { get; set; } = ImmutableDictionary<string, GraphQLArgument>.Empty;
+        public ResolveFunc Resolve { get; set; }
+        public string DeprecationReason { get; set; }
+    }
+
+    public class GraphQLArgument
+    {
+        public GraphQLArgument(string name, IGraphQLInputType type)
+        {
+            Name = name;
+            Type = type;
+        }
+
+        [NotNull] public String Name { get; set; }
+        public IGraphQLInputType Type { get; set; }
+        public object DefaultValue { get; set; }
+        public string Description { get; set; }
+    }
+
+    public interface IGraphQLObjectTypeConfigFields
+    {
+    }
+
+    public interface IGraphQLObjectTypeConfig
+    {
+        [NotNull] String Name { get; set; }
+        ImmutableArray<GraphQLInterfaceType> Interfaces { get; set; }
+        bool isTypeOf(object obj);
+        String Description { get; set; }
+    }
+
+    public interface IGraphQLFieldConfig
+    {
+        [NotNull] IGraphQLOutputType Type { get; set; }
+        GraphQLFieldConfigArgumentMap Args { get; set; }
+
+        object resolve(object source, object args, object context,
+            object fieldAST, object fieldType, object parentType, GraphQLSchema schema);
+
+        string DeprecationReason { get; set; }
+        string Description { get; set; }
+    }
+
+    public class GraphQLSchema
+    {
+    }
+
+    public class GraphQLFieldConfigArgumentMap
+    {
     }
 }

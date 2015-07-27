@@ -86,6 +86,7 @@
     <Compile Include="Language\Schema\SchemaParserTests.cs" />
     <Compile Include="Language\VisitorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Type\DefinitionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GraphQLSharp\GraphQLSharp.csproj">
