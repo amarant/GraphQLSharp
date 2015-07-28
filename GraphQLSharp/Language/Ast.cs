@@ -46,7 +46,7 @@ namespace GraphQLSharp.Language
         StringValue,
         BooleanValue,
         EnumValue,
-        ArrayValue,
+        ListValue,
         ObjectValue,
         ObjectField,
         Directive,
@@ -485,21 +485,21 @@ namespace GraphQLSharp.Language
         }
     }
 
-    public class ArrayValue : ANode, IValue
+    public class ListValue : ANode, IValue
     {
-        public override NodeType Kind => NodeType.ArrayValue;
+        public override NodeType Kind => NodeType.ListValue;
         public ImmutableArray<IValue> Values { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
-           return  visitor.VisitArrayValue(this);
+           return  visitor.VisitListValue(this);
         }
 
-        public ArrayValue Update(ImmutableArray<IValue> values)
+        public ListValue Update(ImmutableArray<IValue> values)
         {
             if (Values != values)
             {
-                return new ArrayValue
+                return new ListValue
                 {
                     Values = values,
                 };

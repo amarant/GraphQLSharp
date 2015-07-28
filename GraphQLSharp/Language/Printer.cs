@@ -160,7 +160,7 @@ namespace GraphQLSharp.Language
             return node.Value;
         }
 
-        public override string VisitArrayValue(ArrayValue node)
+        public override string VisitListValue(ListValue node)
         {
             var values = JoinNotNull(", ", VisitList(node.Values));
             return "[" + values + "]";

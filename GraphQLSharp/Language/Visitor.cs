@@ -114,7 +114,7 @@ namespace GraphQLSharp.Language
             return DefaultVisit(node);
         }
 
-        public virtual TResult VisitArrayValue(ArrayValue node)
+        public virtual TResult VisitListValue(ListValue node)
         {
             return DefaultVisit(node);
         }
@@ -323,7 +323,7 @@ namespace GraphQLSharp.Language
             return DefaultVisit(node);
         }
 
-        public override INode VisitArrayValue(ArrayValue node)
+        public override INode VisitListValue(ListValue node)
         {
             VisitList(node.Values);
             return DefaultVisit(node);
@@ -486,7 +486,7 @@ namespace GraphQLSharp.Language
             return DefaultVisit(node);
         }
 
-        public override INode VisitArrayValue(ArrayValue node)
+        public override INode VisitListValue(ListValue node)
         {
             VisitList(node.Values);
             return DefaultVisit(node);
@@ -752,13 +752,13 @@ namespace GraphQLSharp.Language
             return updatedNode;
         }
 
-        public override INode VisitArrayValue(ArrayValue node)
+        public override INode VisitListValue(ListValue node)
         {
-            var updatedNode = EnterArrayValue(node);
+            var updatedNode = EnterListValue(node);
             if (updatedNode == null) return null;
             var values = VisitList(updatedNode.Values);
             updatedNode = updatedNode.Update(values);
-            updatedNode = LeaveArrayValue(updatedNode);
+            updatedNode = LeaveListValue(updatedNode);
             return updatedNode;
         }
 
@@ -994,14 +994,14 @@ namespace GraphQLSharp.Language
             return Leave(enumValue);
         }
 
-        public virtual ArrayValue EnterArrayValue(ArrayValue arrayValue)
+        public virtual ListValue EnterListValue(ListValue listValue)
         {
-            return Enter(arrayValue);
+            return Enter(listValue);
         }
 
-        public virtual ArrayValue LeaveArrayValue(ArrayValue arrayValue)
+        public virtual ListValue LeaveListValue(ListValue listValue)
         {
-            return Leave(arrayValue);
+            return Leave(listValue);
         }
 
         public virtual ObjectValue EnterObjectValue(ObjectValue objectValue)

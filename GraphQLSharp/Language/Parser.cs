@@ -337,7 +337,7 @@ namespace GraphQLSharp.Language
             switch (token.Kind)
             {
                 case TokenKind.BRACKET_L:
-                    return ParseArray(isConst);
+                    return ParseList(isConst);
                 case TokenKind.BRACE_L:
                     return ParseObject(isConst);
                 case TokenKind.INT:
@@ -388,13 +388,13 @@ namespace GraphQLSharp.Language
             throw Unexpected();
         }
 
-        private ArrayValue ParseArray(bool isConst)
+        private ListValue ParseList(bool isConst)
         {
             var start = Token.Start;
             var value = isConst
                 ? Any(TokenKind.BRACKET_L, ParseConstValue, TokenKind.BRACKET_R)
                 : Any(TokenKind.BRACKET_L, ParseVariableValue, TokenKind.BRACKET_R);
-            return new ArrayValue
+            return new ListValue
             {
                 Values = value,
                 Location = GetLocation(start),
