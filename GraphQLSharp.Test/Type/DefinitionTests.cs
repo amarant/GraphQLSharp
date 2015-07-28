@@ -63,6 +63,9 @@ namespace GraphQLSharp.Test.Type
                     {
                         new GraphQLFieldDefinition("writeArticle", type: BlogArticle), 
                     }));
+            var ObjectType = new GraphQLObjectType("Object");
+            var InterfaceType = new GraphQLObjectType("Interface");
+            var UnionType = new GraphQLUnionType("Union", types: ImmutableArray.Create(new GraphQLObjectType()));
         }
 
         public void TestMethod1()
