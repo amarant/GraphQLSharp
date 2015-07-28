@@ -13,7 +13,7 @@ namespace GraphQLSharp.Test.Type
 
         public DefinitionTests()
         {
-            GraphQLObjectType BlogImage = new GraphQLObjectType("Image",
+            var BlogImage = new GraphQLObjectType("Image",
                 fields: new GraphQLFieldDefinitionMap(
                     new []
                     {
@@ -23,7 +23,7 @@ namespace GraphQLSharp.Test.Type
                     })
                 );
 
-            GraphQLObjectType BlogAuthor = new GraphQLObjectType("Author",
+            var BlogAuthor = new GraphQLObjectType("Author",
                 fields: new GraphQLFieldDefinitionMap(
                     new []
                     {
@@ -37,7 +37,7 @@ namespace GraphQLSharp.Test.Type
                         new GraphQLFieldDefinition("recentArticle", type: BlogImage),
                     }));
 
-            GraphQLObjectType BlogArticle = new GraphQLObjectType("Article",
+            var BlogArticle = new GraphQLObjectType("Article",
                 fields: new GraphQLFieldDefinitionMap(
                     new []
                     {
@@ -46,6 +46,22 @@ namespace GraphQLSharp.Test.Type
                         new GraphQLFieldDefinition("author", type: BlogAuthor), 
                         new GraphQLFieldDefinition("title", type: Scalars.GraphQLString),
                         new GraphQLFieldDefinition("body", type: Scalars.GraphQLString),
+                    }));
+            var BlogQuery = new GraphQLObjectType("Query",
+                fields: new GraphQLFieldDefinitionMap(
+                    new []
+                    {
+                        new GraphQLFieldDefinition("article", args: new []
+                        {
+                            new GraphQLArgument("id", Scalars.GraphQLString), 
+                        }, type: BlogArticle), 
+                        new GraphQLFieldDefinition("feed", type: new GraphQLList(BlogArticle)), 
+                    }));
+            var BlogMutation = new GraphQLObjectType("Mutation",
+                fields: new GraphQLFieldDefinitionMap(
+                    new []
+                    {
+                        new GraphQLFieldDefinition("writeArticle", type: BlogArticle), 
                     }));
         }
 

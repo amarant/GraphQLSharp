@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using GraphQLSharp.Language;
 using JetBrains.Annotations;
 
@@ -239,5 +240,88 @@ namespace GraphQLSharp.Type
 
     public class GraphQLFieldConfigArgumentMap
     {
+    }
+
+    /// <summary>
+    /// List Modifier
+    /// A list is a kind of type marker, a wrapping type which points to another
+    /// type. Lists are often created within the context of defining the fields of
+    /// an object type.
+    /// Example:
+    ///     var PersonType = new GraphQLObjectType({
+    ///       name: 'Person',
+    ///       fields: () => ({
+    ///         parents: { type: new GraphQLList(Person) },
+    ///         children: { type: new GraphQLList(Person) },
+    ///       })
+    ///     })
+    /// </summary>
+    public class GraphQLList : IGraphQLOutputType
+    {
+        public GraphQLObjectType OfType { get; set; }
+
+        public GraphQLList(GraphQLObjectType ofType)
+        {
+            OfType = ofType;
+        }
+
+        public override string ToString() => $"[ {OfType} ]";
+    }
+
+    public class GraphQLUnionType
+    {
+        [NotNull] public string Name { get; set; }
+        public string Description { get; set; }
+        public ImmutableArray<GraphQLObjectType> Types { get; set; }
+        public Func<object, GraphQLObjectType> Resolver { get; set; }
+        public ImmutableDictionary<string, bool> PossibleTypeNames { get; set; }
+
+        public GraphQLUnionType(string name, string description = null,
+            ImmutableArray<GraphQLObjectType> types = default(ImmutableArray<GraphQLObjectType>),
+            Func<object, GraphQLObjectType> resolver = null)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException(nameof(name), "Type must be named.");
+            }
+            if (types.IsEmpty)
+            {
+                throw new ArgumentException(nameof(types), $"Must provide types for Union ${name}.");
+            }
+/*            var nullTypes = types.Where(x => x == null).ToList();
+            if (nullTypes.Any())
+            {
+                throw new ArgumentException(nameof(types),
+                    $"Union ${name} may only contain object types, it cannot " +
+                    $"contain: ${string.Join(", ", nullTypes)}.");
+            }*/
+            Name = name;
+            Description = description;
+            Types = types;
+            Resolver = resolver;
+        }
+
+        public ImmutableArray<GraphQLObjectType> GetPossibleTypes() => Types;
+
+        public bool IsPossibleType(GraphQLObjectType type)
+        {
+            if (PossibleTypeNames == null)
+            {
+                PossibleTypeNames = Types.Aggregate(
+                    ImmutableDictionary<string, bool>.Empty,
+                    (dict, possibleType) => dict.Add(possibleType.Name, true));
+            }
+            return PossibleTypeNames[type.Name];
+        }
+
+        public GraphQLObjectType ResolveType(object value) => 
+            Resolver != null ? Resolver(value) : GetTypeOf(value, this);
+
+        public override string ToString() => Name;
+
+        private GraphQLObjectType GetTypeOf(object value, GraphQLUnionType graphQLUnionType)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
