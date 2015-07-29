@@ -201,7 +201,7 @@ type Hello {
                                 Name = new Name("world", new Location(16, 21, body)),
                                 Type = new NamedType("String", 38, 44, body),
                                 Arguments = ImmutableArray.Create(
-                                    new ArgumentDefinition
+                                    new InputValueDefinition
                                     {
                                         Name = new Name("flag", new Location(22, 26, body)),
                                         Type = new NamedType("Boolean", 28, 35, body),
@@ -237,7 +237,7 @@ type Hello {
                                 Name = new Name("world", new Location(16, 21, body)),
                                 Type = new NamedType("String", 45, 51, body),
                                 Arguments = ImmutableArray.Create(
-                                    new ArgumentDefinition
+                                    new InputValueDefinition
                                     {
                                         Name = new Name("flag", new Location(22, 26, body)),
                                         Type = new NamedType("Boolean", 28, 35, body),
@@ -278,7 +278,7 @@ type Hello {
                                 Name = new Name("world", new Location(16, 21, body)),
                                 Type = new NamedType("String", 41, 47, body),
                                 Arguments = ImmutableArray.Create(
-                                    new ArgumentDefinition
+                                    new InputValueDefinition
                                     {
                                         Name = new Name("things", new Location(22, 28, body)),
                                         Type = new ListType
@@ -319,14 +319,14 @@ type Hello {
                                 Name = new Name("world", new Location(16, 21, body)),
                                 Type = new NamedType("String", 53, 59, body),
                                 Arguments = ImmutableArray.Create(
-                                    new ArgumentDefinition
+                                    new InputValueDefinition
                                     {
                                         Name = new Name("argOne", new Location(22, 28, body)),
                                         Type = new NamedType("Boolean", 30, 37, body),
                                         DefaultValue = null,
                                         Location = new Location(22, 37, body),
                                     },
-                                    new ArgumentDefinition
+                                    new InputValueDefinition
                                     {
                                         Name = new Name("argTwo", new Location(39, 45, body)),
                                         Type = new NamedType("Int", 47, 50, body),
@@ -419,7 +419,7 @@ input Hello {
                     {
                         Name = new Name("Hello", new Location(7, 12, body)),
                         Fields = ImmutableArray.Create(
-                            new InputFieldDefinition
+                            new InputValueDefinition
                             {
                                 Name = new Name("world", new Location(17, 22, body)),
                                 Type = new NamedType("String", 24, 30, body),

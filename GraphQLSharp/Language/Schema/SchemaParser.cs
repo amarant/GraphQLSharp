@@ -167,25 +167,22 @@ namespace GraphQLSharp.Language.Schema
         /// ArgumentsDefinition : ( ArgumentDefinition+ )
         /// </summary>
         /// <returns></returns>
-        private ImmutableArray<ArgumentDefinition> ParseArgumentDefs()
+        private ImmutableArray<InputValueDefinition> ParseArgumentDefs()
         {
             if (!Peek(TokenKind.PAREN_L))
             {
-                return ImmutableArray<ArgumentDefinition>.Empty;
+                return ImmutableArray<InputValueDefinition>.Empty;
             }
-            return Many(TokenKind.PAREN_L, ParseArgumentDef, TokenKind.PAREN_R);
+            return Many(TokenKind.PAREN_L, ParseInputValueDef, TokenKind.PAREN_R);
         }
 
         /// <summary>
-        /// Parses the argument definition.
-        /// ArgumentDefinition : ArgumentName : Value[Const] DefaultValue?
-        /// 
-        /// ArgumentName : Name
+        /// InputValueDefinition : Name : Value[Const] DefaultValue?
         /// 
         /// DefaultValue : = Value[Const]
         /// </summary>
         /// <returns></returns>
-        private ArgumentDefinition ParseArgumentDef()
+        private InputValueDefinition ParseInputValueDef()
         {
             var start = Token.Start;
             var name = ParseName();
@@ -196,7 +193,7 @@ namespace GraphQLSharp.Language.Schema
             {
                 defaultValue = ParseConstValue();
             }
-            return new ArgumentDefinition
+            return new InputValueDefinition
             {
                 Name = name,
                 Type = type,
@@ -326,30 +323,11 @@ namespace GraphQLSharp.Language.Schema
             var start = Token.Start;
             ExpectKeyword("input");
             var name = ParseName();
-            var fields = Any(TokenKind.BRACE_L, ParseInputFieldDefinition, TokenKind.BRACE_R);
+            var fields = Any(TokenKind.BRACE_L, ParseInputValueDef, TokenKind.BRACE_R);
             return new InputObjectDefinition
             {
                 Name = name,
                 Fields = fields,
-                Location = GetLocation(start),
-            };
-        }
-
-        /// <summary>
-        /// Parses the input field definition.
-        /// InputFieldDefinition : FieldName : Type
-        /// </summary>
-        /// <returns></returns>
-        private InputFieldDefinition ParseInputFieldDefinition()
-        {
-            var start = Token.Start;
-            var name = ParseName();
-            Expect(TokenKind.COLON);
-            var type = ParseType();
-            return new InputFieldDefinition
-            {
-                Name = name,
-                Type = type,
                 Location = GetLocation(start),
             };
         }

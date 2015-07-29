@@ -41,7 +41,7 @@ namespace GraphQLSharp.Language.Schema
     {
         public override NodeType Kind => NodeType.FieldDefinition;
         [NotNull] public Name Name { get; set; }
-        public ImmutableArray<ArgumentDefinition> Arguments { get; set; } = ImmutableArray<ArgumentDefinition>.Empty;
+        public ImmutableArray<InputValueDefinition> Arguments { get; set; } = ImmutableArray<InputValueDefinition>.Empty;
         public IType Type { get; set; }
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
@@ -50,9 +50,9 @@ namespace GraphQLSharp.Language.Schema
         }
     }
 
-    public class ArgumentDefinition : ANode
+    public class InputValueDefinition : ANode
     {
-        public override NodeType Kind => NodeType.ArgumentDefinition;
+        public override NodeType Kind => NodeType.InputValueDefinition;
         [NotNull] public Name Name { get; set; }
         [NotNull] public IType Type { get; set; }
         public IValue DefaultValue { get; set; }
@@ -127,23 +127,11 @@ namespace GraphQLSharp.Language.Schema
     public class InputObjectDefinition : SchemaDefinition
     {
         public override NodeType Kind => NodeType.InputObjectDefinition;
-        public ImmutableArray<InputFieldDefinition> Fields { get; set; } = ImmutableArray<InputFieldDefinition>.Empty;
+        public ImmutableArray<InputValueDefinition> Fields { get; set; } = ImmutableArray<InputValueDefinition>.Empty;
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
             return visitor.VisitInputObjectDefinition(this);
-        }
-    }
-
-    public class InputFieldDefinition : ANode
-    {
-        public override NodeType Kind => NodeType.InputFieldDefinition;
-        [NotNull] public Name Name { get; set; }
-        [NotNull] public IType Type { get; set; }
-
-        public override TResult Accept<TResult>(Visitor<TResult> visitor)
-        {
-            return visitor.VisitInputFieldDefinition(this);
         }
     }
 }

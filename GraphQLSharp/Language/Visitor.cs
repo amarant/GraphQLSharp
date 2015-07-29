@@ -164,7 +164,7 @@ namespace GraphQLSharp.Language
             return DefaultVisit(node);
         }
 
-        public virtual TResult VisitArgumentDefinition(ArgumentDefinition node)
+        public virtual TResult VisitArgumentDefinition(InputValueDefinition node)
         {
             return DefaultVisit(node);
         }
@@ -195,11 +195,6 @@ namespace GraphQLSharp.Language
         }
 
         public virtual TResult VisitEnumValueDefinition(EnumValueDefinition node)
-        {
-            return DefaultVisit(node);
-        }
-
-        public virtual  TResult VisitInputFieldDefinition(InputFieldDefinition node)
         {
             return DefaultVisit(node);
         }

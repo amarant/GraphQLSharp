@@ -56,7 +56,7 @@ namespace GraphQLSharp.Language
         TypeDefinition,
         InterfaceDefinition,
         FieldDefinition,
-        ArgumentDefinition,
+        InputValueDefinition,
         EnumDefinition,
         ScalarDefinition,
         InputObjectDefinition,
