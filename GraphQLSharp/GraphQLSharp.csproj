@@ -58,7 +58,9 @@
     <Compile Include="Language\ParserCore.cs" />
     <Compile Include="Language\Printer.cs" />
     <Compile Include="Language\Schema\Ast.cs" />
+    <Compile Include="Language\Schema\SchemaPrinter.cs" />
     <Compile Include="Language\Schema\SchemaParser.cs" />
+    <Compile Include="Language\Schema\Visitor.cs" />
     <Compile Include="Language\Source.cs" />
     <Compile Include="Language\Visitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

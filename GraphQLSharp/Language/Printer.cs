@@ -7,7 +7,6 @@ namespace GraphQLSharp.Language
 {
     public class Printer : Visitor<String>
     {
-        
         protected virtual ImmutableArray<String> VisitList<T>(ImmutableArray<T> list) where T : class, INode
         {
             var stringList = ImmutableArray<string>.Empty;
@@ -24,7 +23,7 @@ namespace GraphQLSharp.Language
             return stringList;
         }
 
-        private static string ManyList(string start, ImmutableArray<String> list, string separator, string end)
+        protected static string ManyList(string start, ImmutableArray<String> list, string separator, string end)
         {
             return list.Any() ? start + JoinNotNull(separator, list) + end : null;
         }
@@ -38,6 +37,21 @@ namespace GraphQLSharp.Language
         {
             return Join(separator, value.Where(x => !IsNullOrEmpty(x)));
         }
+
+        public static string Block(ImmutableArray<string> array)
+            => array.IsEmpty
+            ? ""
+            : Indent("{\n" + Join("\n", array) + "\n");
+
+        public static string Wrap(string start, string value, string end = null) 
+            => IsNullOrEmpty(value) 
+            ? ""
+            : $"{start}{value}{end ?? ""}";
+
+        public static string Indent(string value)
+            => IsNullOrEmpty(value)
+            ? ""
+            : value.Replace("\n", "\n  ");
 
         public override string VisitName(Name node)
         {
