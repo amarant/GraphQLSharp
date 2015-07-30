@@ -164,7 +164,7 @@ namespace GraphQLSharp.Language
             return DefaultVisit(node);
         }
 
-        public virtual TResult VisitArgumentDefinition(InputValueDefinition node)
+        public virtual TResult VisitInputValueDefinition(InputValueDefinition node)
         {
             return DefaultVisit(node);
         }

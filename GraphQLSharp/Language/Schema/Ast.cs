@@ -59,7 +59,7 @@ namespace GraphQLSharp.Language.Schema
 
         public override TResult Accept<TResult>(Visitor<TResult> visitor)
         {
-            return visitor.VisitArgumentDefinition(this);
+            return visitor.VisitInputValueDefinition(this);
         }
     }
 
