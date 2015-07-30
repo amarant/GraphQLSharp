@@ -79,6 +79,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="FluentAssertionsUtils.cs" />
+    <Compile Include="Language\Schema\PrinterTests.cs" />
     <Compile Include="Language\TestUtils.cs" />
     <Compile Include="Language\LexerTests.cs" />
     <Compile Include="Language\ParserTests.cs" />
@@ -97,6 +98,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Language\kitchen-sink.graphql" />
+    <None Include="Language\Schema\schema-kitchen-sink.graphql" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>
