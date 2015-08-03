@@ -103,6 +103,31 @@ fragment MissingOn Type
         }
 
         [Fact]
+        public void AllowsNonKeywordsAnywhereANameIsAllowed()
+        {
+            var nonKeywords = new[] {
+              "on",
+              "fragment",
+              "query",
+              "mutation",
+              "true",
+              "false",
+            };
+            foreach (var keyword in nonKeywords)
+            {
+                // You can't define or reference a fragment named `on`.
+                var fragmentName = keyword == "on" ? "a" : keyword;
+                ParseNoErr($@"query {keyword} {{
+  ... {fragmentName}
+  ... on {keyword} {{ field }}
+}}
+fragment {fragmentName} on Type {{
+  {keyword}({keyword}: ${keyword}) @{keyword}({keyword}: {keyword})
+}}");
+            }
+        }
+
+        [Fact]
         public void ParseCreatesAst()
         {
             var source = new Source("{\n  node(id: 4) {\n    id,\n    name\n  }\n}\n");
