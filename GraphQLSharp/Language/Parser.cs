@@ -48,6 +48,35 @@ namespace GraphQLSharp.Language
         }
 
         /// <summary>
+        /// Given a string containing a GraphQL value, parse the AST for that value.
+        /// Throws GraphQLError if a syntax error is encountered.
+        ///
+        /// This is useful within tools that operate upon GraphQL Values directly and
+        /// in isolation of complete GraphQL documents.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
+        public static IValue ParseValue(Source source, ParseOptions options = null)
+        {
+            var parser = new Parser(source, options);
+            return parser.ParseValueLiteral(false);
+        }
+
+        /// <summary>
+        /// Given a string containing a GraphQL value, parse the AST for that value.
+        /// Throws GraphQLError if a syntax error is encountered.
+        ///
+        /// This is useful within tools that operate upon GraphQL Values directly and
+        /// in isolation of complete GraphQL documents.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
+        public static IValue ParseValue(string source, ParseOptions options = null) 
+            => ParseValue(new Source(source), options);
+
+        /// <summary>
         /// Converts a name lex token into a name parse node.
         /// </summary>
         /// <returns></returns>
@@ -162,7 +191,7 @@ namespace GraphQLSharp.Language
             {
                 Variable = variable,
                 Type = type,
-                DefaultValue = Skip(TokenKind.EQUALS) ? ParseValue(true) : null,
+                DefaultValue = Skip(TokenKind.EQUALS) ? ParseValueLiteral(true) : null,
                 Location = GetLocation(start),
             };
         }
@@ -249,7 +278,7 @@ namespace GraphQLSharp.Language
             var start = Token.Start;
             var name = ParseName();
             Expect(TokenKind.COLON);
-            var value = ParseValue(false);
+            var value = ParseValueLiteral(false);
             return new Argument
             {
                 Name = name,
@@ -321,17 +350,17 @@ namespace GraphQLSharp.Language
 
         // Implements the parsing rules in the Values section.
 
-        private IValue ParseVariableValue()
-        {
-            return ParseValue(false);
-        }
-
         protected IValue ParseConstValue()
         {
-            return ParseValue(true);
+            return ParseValueLiteral(true);
         }
 
-        private IValue ParseValue(bool isConst)
+        private IValue ParseVariableValue()
+        {
+            return ParseValueLiteral(false);
+        }
+
+        private IValue ParseValueLiteral(bool isConst)
         {
             var token = Token;
             switch (token.Kind)
@@ -430,7 +459,7 @@ namespace GraphQLSharp.Language
             }
             fieldNames.Add(name.Value, true);
             Expect(TokenKind.COLON);
-            var value = ParseValue(isConst);
+            var value = ParseValueLiteral(isConst);
             return new ObjectField
             {
                 Name = name,
