@@ -164,7 +164,7 @@ namespace GraphQLSharp.Language.Schema
 
         /// <summary>
         /// Parses the argument defs.
-        /// ArgumentsDefinition : ( ArgumentDefinition+ )
+        /// ArgumentsDefinition : ( InputValueDefinition+ )
         /// </summary>
         /// <returns></returns>
         private ImmutableArray<InputValueDefinition> ParseArgumentDefs()

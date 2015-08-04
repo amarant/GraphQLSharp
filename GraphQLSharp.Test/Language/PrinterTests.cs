@@ -13,7 +13,7 @@ namespace GraphQLSharp.Test.Language
             var ast = Parser.Parse(kitchenSink);
             var astCopy = Parser.Parse(kitchenSink);
             var printer = new Printer();
-            var print = printer.VisitDocument(ast);
+            printer.VisitDocument(ast);
             ast.ShouldBeEquivalentToDeepDynamic(astCopy);
         }
 
