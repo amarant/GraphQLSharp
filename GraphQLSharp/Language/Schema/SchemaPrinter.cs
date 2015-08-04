@@ -8,10 +8,10 @@ namespace GraphQLSharp.Language.Schema
             => $"{JoinNotNull("\n\n", VisitList(node.Definitions))}\n";
 
         public override string VisitTypeDefinition(TypeDefinition node) 
-            => $"type {node.Name} {ManyList("implements ", VisitList(node.Interfaces), ", ", " ")}{Block(VisitList(node.Fields))}";
+            => $"type {node.Name} {Wrap("implements ", JoinNotNull(", ", VisitList(node.Interfaces)), " ")}{Block(VisitList(node.Fields))}";
 
         public override string VisitFieldDefinition(FieldDefinition node) 
-            => $"{VisitName(node.Name)}{ManyList("(", VisitList(node.Arguments), ", ", ")")}: {Visit(node.Type)}";
+            => $"{VisitName(node.Name)}{Wrap("(", JoinNotNull(", ", VisitList(node.Arguments)), ")")}: {Visit(node.Type)}";
 
         public override string VisitInputValueDefinition(InputValueDefinition node) 
             => $"{VisitName(node.Name)}: {Visit(node.Type)}{Wrap(" = ", Visit(node.DefaultValue))}";

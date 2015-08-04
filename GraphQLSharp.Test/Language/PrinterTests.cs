@@ -70,7 +70,7 @@ fragment frag on Friend {
   unnamed(truthy: true, falsey: false)
   query
 }
-".Replace("\r\n", "\n"));
+".ToLF());
         }
     }
 }
